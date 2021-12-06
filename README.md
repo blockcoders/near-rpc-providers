@@ -33,7 +33,6 @@ Contributions welcome! See [Contributing](CONTRIBUTING.md).
 
 * [__Jose Ramirez__](https://github.com/jarcodallo), [Twitter](https://twitter.com/jarcodallo), [NPM](https://www.npmjs.com/~jarcodallo)
 * [__Brian Zuker__](https://github.com/bzuker)
-* [__Santiago Canosa__](https://github.com/canissj)
 * [__Ana Riera__](https://github.com/AnnRiera)
 
 ## Acknowledgements

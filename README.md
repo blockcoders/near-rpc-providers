@@ -17,6 +17,10 @@ npm i near-rpc-providers
 
 Currently under developement 🤓
 
+## Running a NEAR network locally
+
+Follow the documentation [here](https://github.com/kurtosis-tech/near-kurtosis-module#near-kurtosis-module) to set up a NEAR network locally on your machine using [Kurtosis](https://docs.kurtosistech.com/).
+
 ## Change Log
 
 See [Changelog](CHANGELOG.md) for more information.
@@ -29,7 +33,6 @@ Contributions welcome! See [Contributing](CONTRIBUTING.md).
 
 * [__Jose Ramirez__](https://github.com/jarcodallo), [Twitter](https://twitter.com/jarcodallo), [NPM](https://www.npmjs.com/~jarcodallo)
 * [__Brian Zuker__](https://github.com/bzuker)
-* [__Santiago Canosa__](https://github.com/canissj)
 * [__Ana Riera__](https://github.com/AnnRiera)
 
 ## Acknowledgements

@@ -20,9 +20,9 @@ const networks: { [name: string]: Network } = {
   },
 }
 
-export function getNetwork(_network?: Networkish): Network | null {
+export function getNetwork(_network?: Networkish): Network | undefined {
   if (!_network) {
-    return null
+    return undefined
   }
 
   if (typeof _network === 'number') {
@@ -43,7 +43,7 @@ export function getNetwork(_network?: Networkish): Network | null {
     const network = networks[_network]
 
     if (!network) {
-      return null
+      return undefined
     }
 
     return network

@@ -1,10 +1,18 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { Logger } from '@ethersproject/logger'
 import { deepCopy, getStatic } from '@ethersproject/properties'
 import { JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { BlockRpcResponse, GenesisConfigRpcResponse, RpcResponse, StatusRpcResponse } from './responses'
+import { GetBalanceParams, validateGetBalanceParams } from './parameters'
+import {
+  BlockRpcResponse,
+  GenesisConfigRpcResponse,
+  GetBalanceRpcResponse,
+  RpcResponse,
+  StatusRpcResponse,
+} from './responses'
 
 export class RpcError extends Error {
   public readonly type: string
@@ -154,10 +162,40 @@ export class NearRpcProvider extends JsonRpcProvider {
     switch (method) {
       case 'getBlockNumber':
         const blockResponse = await this.send<BlockRpcResponse>('block', { finality: 'final' })
-
         return blockResponse.header.height
+      case 'getBalance':
+        return this.__internalGetBalance(method, params)
       default:
         return super.perform(method, params)
+    }
+  }
+
+  private async __internalGetBalance(method: string, params: Record<string, any>): Promise<BigNumber> {
+    const defaultParams = {
+      request_type: 'view_account' as const,
+      finality: 'final' as const,
+    }
+
+    const getBalanceParams: GetBalanceParams = {
+      ...defaultParams,
+      ...params,
+      account_id: params.address,
+    }
+
+    console.log({ getBalanceParams })
+    validateGetBalanceParams(getBalanceParams)
+    const balanceResponse = await this.send<GetBalanceRpcResponse>('query', getBalanceParams)
+
+    console.log(balanceResponse)
+    try {
+      return BigNumber.from(balanceResponse.result.amount)
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getBalance',
+        params,
+        result: balanceResponse.result,
+        error,
+      })
     }
   }
 }

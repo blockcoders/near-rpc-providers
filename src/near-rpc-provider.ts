@@ -164,13 +164,17 @@ export class NearRpcProvider extends JsonRpcProvider {
         const blockResponse = await this.send<BlockRpcResponse>('block', { finality: 'final' })
         return blockResponse.header.height
       case 'getBalance':
-        return this.__internalGetBalance(method, params)
+        return this._internalGetBalance(method, params)
       default:
         return super.perform(method, params)
     }
   }
 
-  private async __internalGetBalance(method: string, params: Record<string, any>): Promise<BigNumber> {
+  _getAddress(addressOrName: string | Promise<string>): Promise<string> {
+    return Promise.resolve(addressOrName)
+  }
+
+  private async _internalGetBalance(method: string, params: Record<string, any>): Promise<BigNumber> {
     const defaultParams = {
       request_type: 'view_account' as const,
       finality: 'final' as const,
@@ -182,18 +186,16 @@ export class NearRpcProvider extends JsonRpcProvider {
       account_id: params.address,
     }
 
-    console.log({ getBalanceParams })
     validateGetBalanceParams(getBalanceParams)
     const balanceResponse = await this.send<GetBalanceRpcResponse>('query', getBalanceParams)
 
-    console.log(balanceResponse)
     try {
-      return BigNumber.from(balanceResponse.result.amount)
+      return BigNumber.from(balanceResponse.amount)
     } catch (error) {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getBalance',
-        params,
-        result: balanceResponse.result,
+        params: getBalanceParams,
+        result: balanceResponse,
         error,
       })
     }

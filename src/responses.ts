@@ -28,14 +28,12 @@ export interface GenesisConfigRpcResponse {
   chain_id: string
 }
 
-export interface GetBalanceRpcResponse extends RpcResponse {
-  result: {
-    amount: string
-    locked: string
-    code_hash: string
-    storage_usage: number
-    storage_paid_at: number
-    block_height: number
-    block_hash: string
-  }
+export interface GetBalanceRpcResponse {
+  amount: string
+  locked: string
+  code_hash: string
+  storage_usage: number
+  storage_paid_at: number
+  block_height: number
+  block_hash: string
 }

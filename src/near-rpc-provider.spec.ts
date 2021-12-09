@@ -1,3 +1,4 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { expect } from 'chai'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 
@@ -21,13 +22,12 @@ describe('NearRpcProvider', () => {
     })
   })
 
-  // describe('getBalance', () => {
-  //   it('should get the balance for the account', async () => {
-  //     const balance = await provider.getBalance('blockcoders.testnet')
-
-  //     expect(balance).to.be.finite
-  //   })
-  // })
+  describe('getBalance', () => {
+    it('should get the balance for the account', async () => {
+      const balance = await provider.getBalance('blockcoders.testnet')
+      expect(balance).to.be.instanceOf(BigNumber)
+    })
+  })
 
   describe('RpcError', () => {
     it('should be an instance of Error', () => {

@@ -15,7 +15,7 @@ Near JSON RPC Provider compatible with [ethers.js](https://github.com/ethers-io/
 npm i near-rpc-providers
 ```
 
-Currently under developement 🤓
+Currently under developement 🤓.
 
 ## Running a NEAR network locally
 

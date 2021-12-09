@@ -49,9 +49,9 @@ jobs:
       - run:
           name: Run Build Esm
           command: npm run build-esm
-      - coveralls/upload:
-          path_to_lcov: coverage/lcov.info
-          verbose: true
+      # - coveralls/upload:
+      #     path_to_lcov: coverage/lcov.info
+      #     verbose: true
 
 workflows:
   test-workflow:

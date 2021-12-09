@@ -4,22 +4,7 @@ import { JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-
-export interface RpcResponse {
-  jsonrpc: string
-  id: string
-  result?: Record<string, any>
-  error?: {
-    name: string
-    code: number
-    message: string
-    data: string
-    cause: {
-      name: string
-      info: Record<string, any>
-    }
-  }
-}
+import { BlockRpcResponse, GenesisConfigRpcResponse, RpcResponse, StatusRpcResponse } from './responses'
 
 export class RpcError extends Error {
   public readonly type: string
@@ -28,7 +13,7 @@ export class RpcError extends Error {
 
   constructor(message: string, type: string, code: number, data: string) {
     super(message)
-    this.name = this.constructor.name
+    this.name = RpcError.name
     this.type = type
     this.code = code
     this.data = data
@@ -46,8 +31,9 @@ function getResult(payload: RpcResponse): any {
 }
 
 export class NearRpcProvider extends JsonRpcProvider {
-  constructor(network?: Networkish) {
-    const baseUrl = getStatic<(network?: Network | null) => string>(new.target, 'getBaseUrl')(getNetwork(network))
+  constructor(_network?: Networkish) {
+    const network = getNetwork(_network)
+    const baseUrl = getStatic<(network?: Network | null) => string>(new.target, 'getBaseUrl')(network)
 
     super(baseUrl, network)
 
@@ -62,7 +48,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     switch (network ? network.name : 'invalid') {
       case 'near-mainnet':
         return 'https://rpc.mainnet.near.org'
-      case 'near-mainnet':
+      case 'near-testnet':
         return 'https://rpc.testnet.near.org'
       case 'near-betanet':
         return 'https://rpc.betanet.near.org'
@@ -81,10 +67,13 @@ export class NearRpcProvider extends JsonRpcProvider {
     let chainId = null
 
     try {
-      chainId = await this.send('status', [])
+      const statusResponse = await this.send<StatusRpcResponse>('status', {})
+
+      chainId = statusResponse.chain_id
     } catch (error) {
       try {
-        chainId = await this.send('EXPERIMENTAL_genesis_config', [])
+        const configResponse = await this.send<GenesisConfigRpcResponse>('EXPERIMENTAL_genesis_config', {})
+        chainId = configResponse.chain_id
       } catch (error) {}
     }
 
@@ -111,7 +100,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     })
   }
 
-  async send(method: string, params: Array<any>): Promise<any> {
+  async send<T>(method: string, params: Record<string, any>): Promise<T> {
     const request = {
       method: method,
       params: params,
@@ -148,7 +137,7 @@ export class NearRpcProvider extends JsonRpcProvider {
         }, 0)
       }
 
-      return result
+      return result as T
     } catch (err) {
       this.emit('debug', {
         action: 'response',
@@ -158,6 +147,17 @@ export class NearRpcProvider extends JsonRpcProvider {
       })
 
       throw err
+    }
+  }
+
+  async perform(method: string, params: Record<string, any>): Promise<any> {
+    switch (method) {
+      case 'getBlockNumber':
+        const blockResponse = await this.send<BlockRpcResponse>('block', { finality: 'final' })
+
+        return blockResponse.header.height
+      default:
+        return super.perform(method, params)
     }
   }
 }

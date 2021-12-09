@@ -1,6 +1,6 @@
 {
   "name": "near-rpc-providers",
-  "version": "1.0.0",
+  "version": "0.0.1-alpha.1",
   "description": "Near JSON RPC Provider compatible with ethers.js",
   "author": "Blockcoders <engineering@blockcoders.io>",
   "license": "MIT",
@@ -49,7 +49,11 @@
   "dependencies": {
     "@ethersproject/abstract-provider": "^5.5.1",
     "@ethersproject/abstract-signer": "^5.5.0",
-    "@ethersproject/providers": "^5.5.0"
+    "@ethersproject/logger": "^5.5.0",
+    "@ethersproject/networks": "^5.5.1",
+    "@ethersproject/properties": "^5.5.0",
+    "@ethersproject/providers": "^5.5.0",
+    "@ethersproject/web": "^5.5.1"
   },
   "devDependencies": {
     "@types/mocha": "^9.0.0",

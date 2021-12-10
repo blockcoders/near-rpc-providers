@@ -5,19 +5,25 @@ export interface NetworkWithUrl extends Network {
   url: string
 }
 
+export const NEAR_NETWORK: Network = {
+  name: 'near',
+  chainId: parseInt(Buffer.from('mainnet').toString('hex'), 16),
+}
+
+export const NEAR_TESTNET_NETWORK: Network = {
+  name: 'neartestnet',
+  chainId: parseInt(Buffer.from('testnet').toString('hex'), 16),
+}
+
+export const NEAR_BETANET_NETWORK: Network = {
+  name: 'nearbetanet',
+  chainId: parseInt(Buffer.from('betanet').toString('hex'), 16),
+}
+
 const networks: { [name: string]: Network } = {
-  near: {
-    name: 'near-mainnet',
-    chainId: parseInt(Buffer.from('mainnet').toString('hex'), 16),
-  },
-  neartestnet: {
-    name: 'near-testnet',
-    chainId: parseInt(Buffer.from('testnet').toString('hex'), 16),
-  },
-  nearbetanet: {
-    name: 'near-betanet',
-    chainId: parseInt(Buffer.from('betanet').toString('hex'), 16),
-  },
+  near: NEAR_NETWORK,
+  neartestnet: NEAR_TESTNET_NETWORK,
+  nearbetanet: NEAR_BETANET_NETWORK,
 }
 
 export function getNetwork(_network?: Networkish): Network | undefined {
@@ -53,8 +59,6 @@ export function getNetwork(_network?: Networkish): Network | undefined {
 
   if (!network) {
     logger.throwArgumentError('Invalid near network.', 'network', network)
-
-    return network
   }
 
   return network

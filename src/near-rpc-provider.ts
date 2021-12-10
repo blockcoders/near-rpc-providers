@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Logger } from '@ethersproject/logger'
 import { deepCopy, getStatic } from '@ethersproject/properties'
-import { JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
+import { BlockTag, Block, JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
@@ -165,7 +165,9 @@ export class NearRpcProvider extends JsonRpcProvider {
         const blockResponse = await this.send<BlockRpcResponse>('block', { finality: 'final' })
         return blockResponse.header.height
       case 'getBalance':
-        return this._internalGetBalance(method, params)
+        return this._internalGetBalance(params)
+      case 'getBlock':
+        return this._internalGetBlock(params)
       case 'getGasPrice':
         const gasResponse = await this.send<GetLastGasPriceRpcResponse>('gas_price', [null])
         return gasResponse.gas_price
@@ -178,7 +180,38 @@ export class NearRpcProvider extends JsonRpcProvider {
     return Promise.resolve(addressOrName)
   }
 
-  private async _internalGetBalance(method: string, params: Record<string, any>): Promise<BigNumber> {
+  async status() {
+    const statusResponse = await this.send<StatusRpcResponse>('status', {})
+    return statusResponse
+  }
+
+  async _getBlock(blockHashOrBlockTag: BlockTag | string | Promise<BlockTag | string>): Promise<Block> {
+    blockHashOrBlockTag = await blockHashOrBlockTag
+    const block = await this.perform('getBlock', { block_id: blockHashOrBlockTag })
+    return block
+  }
+
+  private async _internalGetBlock(params: Record<string, any>): Promise<Block> {
+    const blockResponse = await this.send<BlockRpcResponse>('block', { block_id: params.block_id })
+
+    return {
+      hash: blockResponse.header.hash,
+      parentHash: blockResponse.header.prev_hash,
+      number: blockResponse.header.height,
+      timestamp: blockResponse.header.timestamp,
+      // TODO: starting from here, are these values correct?
+      nonce: blockResponse.header.random_value,
+      difficulty: 0,
+      _difficulty: BigNumber.from(0),
+      transactions: [],
+      gasLimit: BigNumber.from(Math.max(...blockResponse.chunks.map((chunk) => chunk.gas_limit))),
+      gasUsed: BigNumber.from(Math.max(...blockResponse.chunks.map((chunk) => chunk.gas_used))),
+      miner: blockResponse.author,
+      extraData: '',
+    }
+  }
+
+  private async _internalGetBalance(params: Record<string, any>): Promise<BigNumber> {
     const getBalanceParams: GetBalanceParams = {
       request_type: 'view_account' as const,
       finality: 'final' as const,

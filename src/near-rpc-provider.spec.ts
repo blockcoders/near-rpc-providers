@@ -26,7 +26,26 @@ describe('NearRpcProvider', () => {
     it('should get the balance for the account', async () => {
       const balance = await provider.getBalance('blockcoders.testnet')
       expect(balance).to.be.instanceOf(BigNumber)
-      expect(balance.gt(BigNumber.from(0))).to.be.true
+    })
+  })
+
+  describe('getBlock', () => {
+    it('should get the block by number', async () => {
+      const block = await provider.getBlock(74419929)
+      expect(block).to.not.be.undefined
+    })
+
+    it('should get the block by hash', async () => {
+      const block = await provider.getBlock('DckezGRnns3cYBwj1A9KPajpu3pnabUGE3bedJEgJnSU')
+      expect(block).to.haveOwnProperty('hash')
+    })
+
+    it('should get the same block by hash and number', async () => {
+      const block = await provider.getBlock(74419929)
+      const block2 = await provider.getBlock('DckezGRnns3cYBwj1A9KPajpu3pnabUGE3bedJEgJnSU')
+      expect(block.hash).to.equal(block2.hash)
+      expect(block.number).to.equal(block2.number)
+      expect(block.timestamp).to.equal(block2.timestamp)
     })
   })
 

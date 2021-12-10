@@ -5,7 +5,6 @@ Near RPC Providers
 [![CircleCI](https://circleci.com/gh/blockcoders/near-rpc-providers/tree/main.svg?style=svg)](https://circleci.com/gh/blockcoders/near-rpc-providers/tree/main)
 [![Coverage Status](https://coveralls.io/repos/github/blockcoders/near-rpc-providers/badge.svg?branch=main)](https://coveralls.io/github/blockcoders/near-rpc-providers?branch=main)
 [![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/near-rpc-providers)](https://snyk.io/test/github/blockcoders/near-rpc-providers)
-[![supported platforms](https://img.shields.io/badge/platforms-Express%20%26%20Fastify-green)](https://img.shields.io/badge/platforms-Express%20%26%20Fastify-green)
 
 Near JSON RPC Provider compatible with [ethers.js](https://github.com/ethers-io/ethers.js/)
 

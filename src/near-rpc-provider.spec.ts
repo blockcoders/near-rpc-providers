@@ -29,6 +29,19 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('getBlock', () => {
+    it('should get the block by number', async () => {
+      // const status = await provider.status()
+      const block = await provider.getBlock(74419929)
+      expect(block).to.not.be.undefined
+    })
+
+    // it('should get the block by hash', async () => {
+    //   const block = await provider.getBlock('')
+    //   expect(block).to.be.instanceOf(BigNumber)
+    // })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

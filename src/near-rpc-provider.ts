@@ -201,8 +201,8 @@ export class NearRpcProvider extends JsonRpcProvider {
       timestamp: blockResponse.header.timestamp,
       // TODO: starting from here, are these values correct?
       nonce: blockResponse.header.random_value,
-      difficulty: blockResponse.header.block_ordinal,
-      _difficulty: BigNumber.from(blockResponse.header.block_ordinal),
+      difficulty: 0,
+      _difficulty: BigNumber.from(0),
       transactions: [],
       gasLimit: BigNumber.from(Math.max(...blockResponse.chunks.map((chunk) => chunk.gas_limit))),
       gasUsed: BigNumber.from(Math.max(...blockResponse.chunks.map((chunk) => chunk.gas_used))),

@@ -31,3 +31,7 @@ export interface GenesisConfigRpcResponse {
 export interface GetBalanceRpcResponse {
   amount: string
 }
+
+export interface GetLastGasPriceRpcResponse {
+  gas_price: string
+}

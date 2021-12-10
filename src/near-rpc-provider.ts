@@ -12,6 +12,7 @@ import {
   GetBalanceRpcResponse,
   RpcResponse,
   StatusRpcResponse,
+  GetLastGasPriceRpcResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -108,7 +109,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     })
   }
 
-  async send<T>(method: string, params: Record<string, any>): Promise<T> {
+  async send<T>(method: string, params: Record<string, any> | any[]): Promise<T> {
     const request = {
       method: method,
       params: params,
@@ -165,6 +166,9 @@ export class NearRpcProvider extends JsonRpcProvider {
         return blockResponse.header.height
       case 'getBalance':
         return this._internalGetBalance(method, params)
+      case 'getGasPrice':
+        const gasResponse = await this.send<GetLastGasPriceRpcResponse>('gas_price', [null])
+        return gasResponse.gas_price
       default:
         return super.perform(method, params)
     }

@@ -5,13 +5,14 @@ import { BlockTag, Block, JsonRpcProvider, Network, Networkish } from '@etherspr
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { GetBalanceParams, validateGetBalanceParams } from './parameters'
+import { GetBalanceParams } from './parameters'
 import {
   BlockRpcResponse,
   GenesisConfigRpcResponse,
   GetBalanceRpcResponse,
   RpcResponse,
   StatusRpcResponse,
+  GetLastGasPriceRpcResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -108,7 +109,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     })
   }
 
-  async send<T>(method: string, params: Record<string, any>): Promise<T> {
+  async send<T>(method: string, params: Record<string, any> | any[]): Promise<T> {
     const request = {
       method: method,
       params: params,
@@ -167,6 +168,9 @@ export class NearRpcProvider extends JsonRpcProvider {
         return this._internalGetBalance(params)
       case 'getBlock':
         return this._internalGetBlock(params)
+      case 'getGasPrice':
+        const gasResponse = await this.send<GetLastGasPriceRpcResponse>('gas_price', [null])
+        return gasResponse.gas_price
       default:
         return super.perform(method, params)
     }
@@ -208,18 +212,12 @@ export class NearRpcProvider extends JsonRpcProvider {
   }
 
   private async _internalGetBalance(params: Record<string, any>): Promise<BigNumber> {
-    const defaultParams = {
+    const getBalanceParams: GetBalanceParams = {
       request_type: 'view_account' as const,
       finality: 'final' as const,
-    }
-
-    const getBalanceParams: GetBalanceParams = {
-      ...defaultParams,
-      ...params,
       account_id: params.address,
     }
 
-    validateGetBalanceParams(getBalanceParams)
     const balanceResponse = await this.send<GetBalanceRpcResponse>('query', getBalanceParams)
 
     try {

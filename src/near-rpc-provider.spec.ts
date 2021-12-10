@@ -49,6 +49,14 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('getGasPrice', () => {
+    it('should get the most recent gas price', async () => {
+      const gasPrice = await provider.getGasPrice()
+      expect(gasPrice).to.be.instanceOf(BigNumber)
+      expect(gasPrice.gt(BigNumber.from(0))).to.be.true
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

@@ -1,3 +1,4 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { expect } from 'chai'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 
@@ -17,8 +18,15 @@ describe('NearRpcProvider', () => {
   describe('blockNumber', () => {
     it('should get latest block number', async () => {
       const block = await provider.getBlockNumber()
-
       expect(block).to.be.finite
+    })
+  })
+
+  describe('getBalance', () => {
+    it('should get the balance for the account', async () => {
+      const balance = await provider.getBalance('blockcoders.testnet')
+      expect(balance).to.be.instanceOf(BigNumber)
+      expect(balance.gt(BigNumber.from(0))).to.be.true
     })
   })
 

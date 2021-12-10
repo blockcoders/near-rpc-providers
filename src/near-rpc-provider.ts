@@ -1,10 +1,18 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { Logger } from '@ethersproject/logger'
 import { deepCopy, getStatic } from '@ethersproject/properties'
 import { JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { BlockRpcResponse, GenesisConfigRpcResponse, RpcResponse, StatusRpcResponse } from './responses'
+import { GetBalanceParams } from './parameters'
+import {
+  BlockRpcResponse,
+  GenesisConfigRpcResponse,
+  GetBalanceRpcResponse,
+  RpcResponse,
+  StatusRpcResponse,
+} from './responses'
 
 export class RpcError extends Error {
   public readonly type: string
@@ -154,10 +162,36 @@ export class NearRpcProvider extends JsonRpcProvider {
     switch (method) {
       case 'getBlockNumber':
         const blockResponse = await this.send<BlockRpcResponse>('block', { finality: 'final' })
-
         return blockResponse.header.height
+      case 'getBalance':
+        return this._internalGetBalance(method, params)
       default:
         return super.perform(method, params)
+    }
+  }
+
+  _getAddress(addressOrName: string | Promise<string>): Promise<string> {
+    return Promise.resolve(addressOrName)
+  }
+
+  private async _internalGetBalance(method: string, params: Record<string, any>): Promise<BigNumber> {
+    const getBalanceParams: GetBalanceParams = {
+      request_type: 'view_account' as const,
+      finality: 'final' as const,
+      account_id: params.address,
+    }
+
+    const balanceResponse = await this.send<GetBalanceRpcResponse>('query', getBalanceParams)
+
+    try {
+      return BigNumber.from(balanceResponse.amount)
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getBalance',
+        params: getBalanceParams,
+        result: balanceResponse,
+        error,
+      })
     }
   }
 }

@@ -27,3 +27,7 @@ export interface StatusRpcResponse {
 export interface GenesisConfigRpcResponse {
   chain_id: string
 }
+
+export interface GetBalanceRpcResponse {
+  amount: string
+}

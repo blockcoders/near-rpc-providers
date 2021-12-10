@@ -15,6 +15,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=test mocha --require ts-node/register src/**/*.spec.ts",
+    "test:watch": "NODE_ENV=test mocha --watch --watch-files src/**/*.ts --require ts-node/register src/**/*.spec.ts",
     "test:cov": "nyc npm run test",
     "build": "tsc --build ./tsconfig.json",
     "build-all": "npm run build-cjs && npm run build-esnext && npm run build-esm",
@@ -47,6 +48,7 @@
   "homepage": "https://github.com/blockcoders/near-rpc-providers/blob/main/README.md",
   "bugs": "https://github.com/blockcoders/near-rpc-providers/issues",
   "dependencies": {
+    "@ethersproject/bignumber": "^5.5.0",
     "@ethersproject/logger": "^5.5.0",
     "@ethersproject/networks": "^5.5.1",
     "@ethersproject/properties": "^5.5.0",

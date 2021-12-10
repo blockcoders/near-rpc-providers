@@ -1,3 +1,5 @@
+import { BigNumber } from '@ethersproject/bignumber'
+
 export interface RpcResponse {
   jsonrpc: string
   id: string
@@ -30,4 +32,8 @@ export interface GenesisConfigRpcResponse {
 
 export interface GetBalanceRpcResponse {
   amount: string
+}
+
+export interface GetLastGasPriceRpcResponse {
+  gas_price: BigNumber
 }

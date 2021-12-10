@@ -26,6 +26,7 @@ describe('NearRpcProvider', () => {
     it('should get the balance for the account', async () => {
       const balance = await provider.getBalance('blockcoders.testnet')
       expect(balance).to.be.instanceOf(BigNumber)
+      expect(balance.gt(BigNumber.from(0))).to.be.true
     })
   })
 

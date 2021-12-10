@@ -5,7 +5,7 @@ import { JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { GetBalanceParams, validateGetBalanceParams } from './parameters'
+import { GetBalanceParams } from './parameters'
 import {
   BlockRpcResponse,
   GenesisConfigRpcResponse,
@@ -175,18 +175,12 @@ export class NearRpcProvider extends JsonRpcProvider {
   }
 
   private async _internalGetBalance(method: string, params: Record<string, any>): Promise<BigNumber> {
-    const defaultParams = {
+    const getBalanceParams: GetBalanceParams = {
       request_type: 'view_account' as const,
       finality: 'final' as const,
-    }
-
-    const getBalanceParams: GetBalanceParams = {
-      ...defaultParams,
-      ...params,
       account_id: params.address,
     }
 
-    validateGetBalanceParams(getBalanceParams)
     const balanceResponse = await this.send<GetBalanceRpcResponse>('query', getBalanceParams)
 
     try {

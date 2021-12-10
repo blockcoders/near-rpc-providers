@@ -168,7 +168,7 @@ export class NearRpcProvider extends JsonRpcProvider {
         return this._internalGetBalance(method, params)
       case 'getGasPrice':
         const gasResponse = await this.send<GetLastGasPriceRpcResponse>('gas_price', [null])
-        return BigNumber.from(gasResponse.gas_price)
+        return gasResponse.gas_price
       default:
         return super.perform(method, params)
     }

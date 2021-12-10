@@ -1,5 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
-
 export interface RpcResponse {
   jsonrpc: string
   id: string
@@ -35,5 +33,5 @@ export interface GetBalanceRpcResponse {
 }
 
 export interface GetLastGasPriceRpcResponse {
-  gas_price: BigNumber
+  gas_price: string
 }

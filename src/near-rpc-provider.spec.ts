@@ -31,18 +31,21 @@ describe('NearRpcProvider', () => {
 
   describe('getBlock', () => {
     it('should get the block by number', async () => {
-      const block = await provider.getBlock(74419929)
+      const status = await provider.status()
+      const block = await provider.getBlock(status.sync_info.latest_block_height)
       expect(block).to.not.be.undefined
     })
 
     it('should get the block by hash', async () => {
-      const block = await provider.getBlock('DckezGRnns3cYBwj1A9KPajpu3pnabUGE3bedJEgJnSU')
+      const status = await provider.status()
+      const block = await provider.getBlock(status.sync_info.latest_block_hash)
       expect(block).to.haveOwnProperty('hash')
     })
 
     it('should get the same block by hash and number', async () => {
-      const block = await provider.getBlock(74419929)
-      const block2 = await provider.getBlock('DckezGRnns3cYBwj1A9KPajpu3pnabUGE3bedJEgJnSU')
+      const status = await provider.status()
+      const block = await provider.getBlock(status.sync_info.latest_block_height)
+      const block2 = await provider.getBlock(status.sync_info.latest_block_hash)
       expect(block.hash).to.equal(block2.hash)
       expect(block.number).to.equal(block2.number)
       expect(block.timestamp).to.equal(block2.timestamp)
@@ -56,6 +59,16 @@ describe('NearRpcProvider', () => {
       expect(gasPrice.gt(BigNumber.from(0))).to.be.true
     })
   })
+
+  // describe.only('sendTransaction', () => {
+  //   it('should send a transaction', async () => {
+  //     const tx = await provider.sendTransaction(
+  //       'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
+  //     )
+
+  //     console.log(tx)
+  //   })
+  // })
 
   describe('RpcError', () => {
     it('should be an instance of Error', () => {

@@ -1,12 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { expect } from 'chai'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
+import { NEAR_TESTNET_NETWORK } from './networks'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
 
   beforeEach(async () => {
-    provider = new NearRpcProvider('neartestnet')
+    provider = new NearRpcProvider(NEAR_TESTNET_NETWORK)
 
     await provider.ready
   })

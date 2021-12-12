@@ -55,11 +55,11 @@ export class NearRpcProvider extends JsonRpcProvider {
 
   static getBaseUrl(network?: Network | null): string {
     switch (network ? network.name : 'invalid') {
-      case 'near-mainnet':
+      case 'near':
         return 'https://rpc.mainnet.near.org'
-      case 'near-testnet':
+      case 'neartestnet':
         return 'https://rpc.testnet.near.org'
-      case 'near-betanet':
+      case 'nearbetanet':
         return 'https://rpc.betanet.near.org'
     }
 

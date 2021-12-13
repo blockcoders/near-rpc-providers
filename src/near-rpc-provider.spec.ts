@@ -72,16 +72,16 @@ describe('NearRpcProvider', () => {
   // })
 
   describe('getCode', () => {
-    it('should get the contract block by id', async () => {
+    it('should get the contract code by id', async () => {
       const status = await provider.status()
-      const block = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_height)
-      expect(block).to.not.be.undefined
+      const code = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_height)
+      expect(code).to.not.be.undefined
     })
 
-    it('should get the contract block by hash', async () => {
+    it('should get the contract code by hash', async () => {
       const status = await provider.status()
-      const block = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_hash)
-      expect(block).to.not.be.undefined
+      const code = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_hash)
+      expect(code).to.not.be.undefined
     })
 
     it('should get the contract code', async () => {

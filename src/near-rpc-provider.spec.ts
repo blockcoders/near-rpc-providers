@@ -71,6 +71,13 @@ describe('NearRpcProvider', () => {
   //   })
   // })
 
+  describe('getCode', () => {
+    it('should get the contract code', async () => {
+      const code = await provider.getCode('blockcoders.testnet', 'latest')
+      expect(code).to.be.exist
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

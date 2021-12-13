@@ -80,3 +80,7 @@ export interface GetBalanceRpcResponse {
 export interface GetLastGasPriceRpcResponse {
   gas_price: string
 }
+
+export interface GetCodeRpcResponse {
+  code_base64: string
+}

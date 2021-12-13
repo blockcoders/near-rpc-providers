@@ -5,7 +5,7 @@ import { BlockTag, Block, JsonRpcProvider, Network, Networkish } from '@etherspr
 import { fetchJson } from '@ethersproject/web'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { GetBalanceParams } from './parameters'
+import { GetBalanceParams, GetCodeParams } from './parameters'
 import {
   BlockRpcResponse,
   GenesisConfigRpcResponse,
@@ -13,6 +13,7 @@ import {
   RpcResponse,
   StatusRpcResponse,
   GetLastGasPriceRpcResponse,
+  GetCodeRpcResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -227,6 +228,32 @@ export class NearRpcProvider extends JsonRpcProvider {
         method: 'getBalance',
         params: getBalanceParams,
         result: balanceResponse,
+        error,
+      })
+    }
+  }
+
+  async getCode(addressOrName: string | Promise<string>, blockTag?: BlockTag | Promise<BlockTag>): Promise<string> {
+    const getCodeParams: GetCodeParams = {
+      request_type: 'view_code',
+      account_id: addressOrName,
+    }
+
+    if (blockTag === 'latest') {
+      getCodeParams.finality = 'final'
+    } else {
+      getCodeParams.block_id = blockTag
+    }
+
+    const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
+
+    try {
+      return codeResponse.code_base64
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getCode',
+        params: getCodeParams,
+        result: codeResponse,
         error,
       })
     }

@@ -238,22 +238,18 @@ export class NearRpcProvider extends JsonRpcProvider {
       request_type: 'view_code',
       account_id: addressOrName,
     }
-
-    if (blockTag === 'latest') {
-      getCodeParams.finality = 'final'
-    } else {
-      getCodeParams.block_id = blockTag
-    }
-
-    const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
-
     try {
+      if (blockTag === 'latest') {
+        getCodeParams.finality = 'final'
+      } else {
+        getCodeParams.block_id = blockTag
+      }
+      const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
       return codeResponse.code_base64
     } catch (error) {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getCode',
         params: getCodeParams,
-        result: codeResponse,
         error,
       })
     }

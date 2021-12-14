@@ -71,6 +71,25 @@ describe('NearRpcProvider', () => {
   //   })
   // })
 
+  describe('getCode', () => {
+    it('should get the contract code by id', async () => {
+      const status = await provider.status()
+      const code = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_height)
+      expect(code).to.not.be.undefined
+    })
+
+    it('should get the contract code by hash', async () => {
+      const status = await provider.status()
+      const code = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_hash)
+      expect(code).to.not.be.undefined
+    })
+
+    it('should get the contract code', async () => {
+      const code = await provider.getCode('blockcoders.testnet', 'latest')
+      expect(code).to.be.exist
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

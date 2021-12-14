@@ -1,12 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { expect } from 'chai'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
+import { NEAR_TESTNET_NETWORK } from './networks'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
 
   beforeEach(async () => {
-    provider = new NearRpcProvider('neartestnet')
+    provider = new NearRpcProvider(NEAR_TESTNET_NETWORK)
 
     await provider.ready
   })
@@ -69,6 +70,25 @@ describe('NearRpcProvider', () => {
   //     console.log(tx)
   //   })
   // })
+
+  describe('getCode', () => {
+    it('should get the contract code by id', async () => {
+      const status = await provider.status()
+      const code = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_height)
+      expect(code).to.not.be.undefined
+    })
+
+    it('should get the contract code by hash', async () => {
+      const status = await provider.status()
+      const code = await provider.getCode('blockcoders.testnet', status.sync_info.latest_block_hash)
+      expect(code).to.not.be.undefined
+    })
+
+    it('should get the contract code', async () => {
+      const code = await provider.getCode('blockcoders.testnet', 'latest')
+      expect(code).to.be.exist
+    })
+  })
 
   describe('RpcError', () => {
     it('should be an instance of Error', () => {

@@ -14,24 +14,6 @@ export interface RpcResponse {
   }
 }
 
-export interface BroadcastTxResponse {
-  transaction: {
-    signer_id: 'sender.testnet'
-    public_key: 'ed25519:Gowpa4kXNyTMRKgt5W7147pmcc2PxiFic8UHW9rsNvJ6'
-    nonce: number
-    receiver_id: 'receiver.testnet'
-    actions: [
-      {
-        Transfer: {
-          deposit: '1000000000000000000000000'
-        }
-      },
-    ]
-    signature: 'ed25519:7oCBMfSHrZkT7tzPDBxxCd3tWFhTES38eks3MCZMpYPJRfPWKxJsvmwQiVBBxRLoxPTnXVaMU2jPV3MdFKZTobH'
-    hash: string
-  }
-}
-
 export interface BlockRpcResponse {
   author: string
   header: {

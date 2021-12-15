@@ -3,7 +3,6 @@ import { expect } from 'chai'
 import sinon from 'sinon'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
-import { StatusRpcResponse, GenesisConfigRpcResponse } from './responses'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
@@ -36,10 +35,12 @@ describe('NearRpcProvider', () => {
     })
 
     it('should throw an error if params are not provided', async () => {
-      const stub = sinon.stub(NearRpcProvider.prototype, 'getBalance').callsFake(async () => {
-        throw new Error('bad result from backend')
-      })
-      stub.restore()
+      try {
+        await provider.getBalance('')
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
     })
   })
 
@@ -193,73 +194,22 @@ describe('NearRpcProvider', () => {
   })
 
   describe('uncachedDetectNetwork', () => {
-    const chainId = 32762643847472500
     it('should get the network', async () => {
       try {
-        await provider.send<StatusRpcResponse>('', {})
+        const network = await provider._uncachedDetectNetwork()
+        expect(network).to.exist
       } catch (error) {
-        it('should throw an error if could not detect a network', async () => {
-          try {
-            const stub = sinon.stub(NearRpcProvider.prototype, 'send').callsFake(async () => chainId)
-            const configResponse = await provider.send<GenesisConfigRpcResponse>('EXPERIMENTAL_genesis_config', {})
-            const id = configResponse.chain_id
-            console.log(id)
-            expect(id).to.be.equals(chainId)
-            stub.restore()
-          } catch (error) {
-            expect(error).to.exist
-            expect(error).to.not.be.undefined
-          }
-        })
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
       }
     })
 
-    // it('should throw an error if could not detect a network', async () => {
-    //   try {
-    //     const stub = sinon.stub(NearRpcProvider.prototype, 'send').callsFake(() => {
-    //       throw new Error('could not detect network')
-    //     })
-    //     stub.restore()
-    //   } catch (error) {
-    //     it('should throw an error if could not detect a network', async () => {
-    //       try {
-    //         const stub = sinon.stub(NearRpcProvider.prototype, 'send').callsFake(async () => chainId)
-    //         const configResponse = await provider.send<GenesisConfigRpcResponse>('EXPERIMENTAL_genesis_config', {})
-    //         const id = configResponse.chain_id
-    //         console.log(id)
-    //         expect(id).to.be.equals(chainId)
-    //         stub.restore()
-    //       } catch (error) {
-    //         expect(error).to.exist
-    //         expect(error).to.not.be.undefined
-    //       }
-    //     })
-    //   }
-
-    //   it('should throw an error if chainId is invalid', async () => {
-    //     try {
-    //       const stub = sinon.stub(NearRpcProvider.prototype, 'getNetwork').callsFake(() => {
-    //         throw new Error(`Invalid network chainId ${chainId}`)
-    //       })
-    //       stub.restore()
-    //     } catch (error) {
-    //       expect(error).to.exist
-    //       expect(error).to.not.be.undefined
-    //     }
-    //   })
-    // })
-
-    // it('should throw an error if there is something wrong', async () => {
-    //   try {
-    //     const stub = sinon.stub(NearRpcProvider.prototype, '_uncachedDetectNetwork').callsFake(() => {
-    //       throw new Error('could not detect network')
-    //     })
-    //     stub.restore()
-    //   } catch (error) {
-    //     expect(error).to.exist
-    //     expect(error).to.be.an.instanceof(Error)
-    //   }
-    // })
+    it('should throw an error if could not detect a network', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, '_uncachedDetectNetwork').callsFake(async () => {
+        throw new Error('could not detect network')
+      })
+      stub.restore()
+    })
   })
 
   describe('RpcError', () => {

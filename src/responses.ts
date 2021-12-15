@@ -84,3 +84,16 @@ export interface GetLastGasPriceRpcResponse {
 export interface GetCodeRpcResponse {
   code_base64: string
 }
+
+export interface GetTransactionStatusRpcResponse {
+  status: {
+    SuccessValue: string
+  }
+  transaction_outcome: {
+    block_hash: string
+    outcome: {
+      gas_burnt: number
+    }
+  }
+  receipts_outcome: any[]
+}

@@ -55,9 +55,11 @@
     "@ethersproject/networks": "^5.5.1",
     "@ethersproject/properties": "^5.5.0",
     "@ethersproject/providers": "^5.5.0",
-    "@ethersproject/web": "^5.5.1"
+    "@ethersproject/web": "^5.5.1",
+    "near-api-js": "^0.44.1"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.0",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.11.11",

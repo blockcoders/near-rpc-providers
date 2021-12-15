@@ -1,11 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { expect } from 'chai'
+import { expect, use } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
+  use(chaiAsPromised)
 
   beforeEach(async () => {
     provider = new NearRpcProvider(NEAR_TESTNET_NETWORK)
@@ -34,13 +36,8 @@ describe('NearRpcProvider', () => {
       expect(balance).to.be.instanceOf(BigNumber)
     })
 
-    it('should throw an error if params are not provided', async () => {
-      try {
-        await provider.getBalance('')
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getBalance('', '')).to.be.rejectedWith(Error)
     })
   })
 
@@ -66,13 +63,8 @@ describe('NearRpcProvider', () => {
       expect(block.timestamp).to.equal(block2.timestamp)
     })
 
-    it('should throw an error if params are not provided', async () => {
-      try {
-        await provider.getBlock('')
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getBlock('')).to.be.rejectedWith(Error)
     })
   })
 
@@ -83,13 +75,8 @@ describe('NearRpcProvider', () => {
       expect(gasPrice.gt(BigNumber.from(0))).to.be.true
     })
 
-    it('should throw an error if there is something wrong', async () => {
-      try {
-        await provider.getGasPrice()
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+    it('should throw an error if there is something wrong', () => {
+      expect(provider.getGasPrice()).to.be.rejectedWith(Error)
     })
   })
 
@@ -132,13 +119,8 @@ describe('NearRpcProvider', () => {
       expect(code).to.be.exist
     })
 
-    it('should throw an error if params are not provided', async () => {
-      try {
-        await provider.getCode('', '')
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getCode('')).to.be.rejectedWith(Error)
     })
   })
 

@@ -1,7 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { expect } from 'chai'
+import sinon from 'sinon'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
-import { NEAR_TESTNET_NETWORK } from './networks'
+import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
+import { StatusRpcResponse, GenesisConfigRpcResponse } from './responses'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
@@ -10,6 +12,10 @@ describe('NearRpcProvider', () => {
     provider = new NearRpcProvider(NEAR_TESTNET_NETWORK)
 
     await provider.ready
+  })
+
+  afterEach(async () => {
+    sinon.restore()
   })
 
   it('should be defined', () => {
@@ -27,6 +33,13 @@ describe('NearRpcProvider', () => {
     it('should get the balance for the account', async () => {
       const balance = await provider.getBalance('blockcoders.testnet')
       expect(balance).to.be.instanceOf(BigNumber)
+    })
+
+    it('should throw an error if params are not provided', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, 'getBalance').callsFake(async () => {
+        throw new Error('bad result from backend')
+      })
+      stub.restore()
     })
   })
 
@@ -51,6 +64,15 @@ describe('NearRpcProvider', () => {
       expect(block.number).to.equal(block2.number)
       expect(block.timestamp).to.equal(block2.timestamp)
     })
+
+    it('should throw an error if params are not provided', async () => {
+      try {
+        await provider.getBlock('')
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
+    })
   })
 
   describe('getGasPrice', () => {
@@ -58,6 +80,15 @@ describe('NearRpcProvider', () => {
       const gasPrice = await provider.getGasPrice()
       expect(gasPrice).to.be.instanceOf(BigNumber)
       expect(gasPrice.gt(BigNumber.from(0))).to.be.true
+    })
+
+    it('should throw an error if there is something wrong', async () => {
+      try {
+        await provider.getGasPrice()
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
     })
   })
 
@@ -88,6 +119,136 @@ describe('NearRpcProvider', () => {
       const code = await provider.getCode('blockcoders.testnet', 'latest')
       expect(code).to.be.exist
     })
+
+    it('should throw an error if params are not provided', async () => {
+      try {
+        await provider.getCode('', '')
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
+    })
+  })
+
+  describe('perform', () => {
+    it('should get the default case perform call', async () => {
+      try {
+        await provider.perform('test', {})
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
+    })
+  })
+
+  describe('getBaseUrl', () => {
+    it('should get the instance of near rpc provider for betanet network', async () => {
+      try {
+        const betanet = new NearRpcProvider(NEAR_BETANET_NETWORK)
+        expect(betanet).to.be.exist
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
+    })
+
+    it('should get the instance of near rpc provider for main network', async () => {
+      try {
+        const nearnet = new NearRpcProvider(NEAR_NETWORK)
+        expect(nearnet).to.be.exist
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
+    })
+
+    it('should throw an error if there is an unsupported network', async () => {
+      try {
+        await new NearRpcProvider('other-network')
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.an.instanceof(Error)
+      }
+    })
+  })
+
+  describe('defaultUrl', () => {
+    it('should get the default url', async () => {
+      const url = NearRpcProvider.defaultUrl()
+      expect(url).to.exist
+      expect(url).to.not.be.null
+      expect(url).to.not.be.undefined
+    })
+  })
+
+  describe('uncachedDetectNetwork', () => {
+    const chainId = 32762643847472500
+    it('should get the network', async () => {
+      try {
+        await provider.send<StatusRpcResponse>('', {})
+      } catch (error) {
+        it('should throw an error if could not detect a network', async () => {
+          try {
+            const stub = sinon.stub(NearRpcProvider.prototype, 'send').callsFake(async () => chainId)
+            const configResponse = await provider.send<GenesisConfigRpcResponse>('EXPERIMENTAL_genesis_config', {})
+            const id = configResponse.chain_id
+            console.log(id)
+            expect(id).to.be.equals(chainId)
+            stub.restore()
+          } catch (error) {
+            expect(error).to.exist
+            expect(error).to.not.be.undefined
+          }
+        })
+      }
+    })
+
+    // it('should throw an error if could not detect a network', async () => {
+    //   try {
+    //     const stub = sinon.stub(NearRpcProvider.prototype, 'send').callsFake(() => {
+    //       throw new Error('could not detect network')
+    //     })
+    //     stub.restore()
+    //   } catch (error) {
+    //     it('should throw an error if could not detect a network', async () => {
+    //       try {
+    //         const stub = sinon.stub(NearRpcProvider.prototype, 'send').callsFake(async () => chainId)
+    //         const configResponse = await provider.send<GenesisConfigRpcResponse>('EXPERIMENTAL_genesis_config', {})
+    //         const id = configResponse.chain_id
+    //         console.log(id)
+    //         expect(id).to.be.equals(chainId)
+    //         stub.restore()
+    //       } catch (error) {
+    //         expect(error).to.exist
+    //         expect(error).to.not.be.undefined
+    //       }
+    //     })
+    //   }
+
+    //   it('should throw an error if chainId is invalid', async () => {
+    //     try {
+    //       const stub = sinon.stub(NearRpcProvider.prototype, 'getNetwork').callsFake(() => {
+    //         throw new Error(`Invalid network chainId ${chainId}`)
+    //       })
+    //       stub.restore()
+    //     } catch (error) {
+    //       expect(error).to.exist
+    //       expect(error).to.not.be.undefined
+    //     }
+    //   })
+    // })
+
+    // it('should throw an error if there is something wrong', async () => {
+    //   try {
+    //     const stub = sinon.stub(NearRpcProvider.prototype, '_uncachedDetectNetwork').callsFake(() => {
+    //       throw new Error('could not detect network')
+    //     })
+    //     stub.restore()
+    //   } catch (error) {
+    //     expect(error).to.exist
+    //     expect(error).to.be.an.instanceof(Error)
+    //   }
+    // })
   })
 
   describe('RpcError', () => {

@@ -84,7 +84,13 @@ export class NearRpcProvider extends JsonRpcProvider {
       try {
         const configResponse = await this.send<GenesisConfigRpcResponse>('EXPERIMENTAL_genesis_config', {})
         chainId = configResponse.chain_id
-      } catch (error) {}
+      } catch (error) {
+        return logger.throwError('could not detect network', Logger.errors.NETWORK_ERROR, {
+          chainId: chainId,
+          event: 'invalidNetwork',
+          serverError: error,
+        })
+      }
     }
 
     if (chainId !== null) {

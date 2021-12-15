@@ -1,8 +1,17 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Logger } from '@ethersproject/logger'
 import { deepCopy, getStatic } from '@ethersproject/properties'
-import { BlockTag, Block, JsonRpcProvider, Network, Networkish } from '@ethersproject/providers'
+import {
+  BlockTag,
+  Block,
+  JsonRpcProvider,
+  Network,
+  Networkish,
+  TransactionReceipt,
+  TransactionResponse,
+} from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
+import { SignedTransaction } from 'near-api-js/lib/transaction'
 import { logger } from './logger'
 import { getNetwork } from './networks'
 import { GetBalanceParams, GetCodeParams } from './parameters'
@@ -14,6 +23,7 @@ import {
   StatusRpcResponse,
   GetLastGasPriceRpcResponse,
   GetCodeRpcResponse,
+  GetTransactionStatusRpcResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -216,6 +226,48 @@ export class NearRpcProvider extends JsonRpcProvider {
       miner: blockResponse.author,
       extraData: '',
     }
+  }
+
+  async sendTransaction(signedTransaction: string | Promise<string>): Promise<TransactionResponse> {
+    const network = await this.getNetwork()
+    const signed = await signedTransaction
+    const response = await this.send<string>('broadcast_tx_async', [signed])
+    const tx = this._decodeTransaction(signed)
+    const blockNumber = await this.getBlockNumber()
+    return {
+      hash: response,
+      from: tx.transaction.signerId,
+      nonce: tx.transaction.nonce,
+      confirmations: 0,
+      data: JSON.stringify(tx.transaction.actions),
+      gasLimit: BigNumber.from(0),
+      value: BigNumber.from(0),
+      chainId: network.chainId,
+      wait: async () => {
+        const txStatus = await this._internalGetTransactionStatus(response, tx.transaction.signerId)
+
+        return {
+          blockHash: txStatus.transaction_outcome.block_hash,
+          blockNumber,
+          from: tx.transaction.signerId,
+          to: tx.transaction.receiverId,
+          transactionHash: response,
+          confirmations: txStatus.receipts_outcome.length,
+          gasUsed: txStatus.transaction_outcome.outcome.gas_burnt,
+          status: txStatus.status.SuccessValue,
+        } as unknown as TransactionReceipt
+      },
+    }
+  }
+
+  private async _internalGetTransactionStatus(txHash: string, accountId: string) {
+    // TODO: Query the archival node as well.
+    const result = await this.send<GetTransactionStatusRpcResponse>('tx', [txHash, accountId])
+    return result
+  }
+
+  private _decodeTransaction(signedTransaction: string): SignedTransaction {
+    return SignedTransaction.decode(Buffer.from(signedTransaction, 'base64'))
   }
 
   private async _internalGetBalance(params: Record<string, any>): Promise<BigNumber> {

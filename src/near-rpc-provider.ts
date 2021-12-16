@@ -14,7 +14,7 @@ import { fetchJson } from '@ethersproject/web'
 import { SignedTransaction } from 'near-api-js/lib/transaction'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { GetBalanceParams, GetCodeParams } from './parameters'
+import { GetBalanceParams, GetCodeParams, GetBlockChunkParams } from './parameters'
 import {
   BlockRpcResponse,
   GenesisConfigRpcResponse,
@@ -24,6 +24,7 @@ import {
   GetLastGasPriceRpcResponse,
   GetCodeRpcResponse,
   GetTransactionStatusRpcResponse,
+  GetBlockWithChunkRpcResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -184,7 +185,14 @@ export class NearRpcProvider extends JsonRpcProvider {
       case 'getBalance':
         return this._internalGetBalance(params)
       case 'getBlock':
-        return this._internalGetBlock(params)
+        return logger.throwError(
+          'getBlock function is not supported in Near Provider. Please use getBlockWithChunck function',
+          Logger.errors.SERVER_ERROR,
+          {
+            method: 'getBlock',
+            params: params,
+          },
+        )
       case 'getGasPrice':
         const gasResponse = await this.send<GetLastGasPriceRpcResponse>('gas_price', [null])
         return gasResponse.gas_price
@@ -206,26 +214,6 @@ export class NearRpcProvider extends JsonRpcProvider {
     blockHashOrBlockTag = await blockHashOrBlockTag
     const block = await this.perform('getBlock', { block_id: blockHashOrBlockTag })
     return block
-  }
-
-  private async _internalGetBlock(params: Record<string, any>): Promise<Block> {
-    const blockResponse = await this.send<BlockRpcResponse>('block', { block_id: params.block_id })
-
-    return {
-      hash: blockResponse.header.hash,
-      parentHash: blockResponse.header.prev_hash,
-      number: blockResponse.header.height,
-      timestamp: blockResponse.header.timestamp,
-      // TODO: starting from here, are these values correct?
-      nonce: blockResponse.header.random_value,
-      difficulty: 0,
-      _difficulty: BigNumber.from(0),
-      transactions: [],
-      gasLimit: BigNumber.from(Math.max(...blockResponse.chunks.map((chunk) => chunk.gas_limit))),
-      gasUsed: BigNumber.from(Math.max(...blockResponse.chunks.map((chunk) => chunk.gas_used))),
-      miner: blockResponse.author,
-      extraData: '',
-    }
   }
 
   async sendTransaction(signedTransaction: string | Promise<string>): Promise<TransactionResponse> {
@@ -308,6 +296,29 @@ export class NearRpcProvider extends JsonRpcProvider {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getCode',
         params: getCodeParams,
+        error,
+      })
+    }
+  }
+
+  async getBlockWithChunk(params: Record<string, any>): Promise<GetBlockWithChunkRpcResponse> {
+    const getBlockChunkParams: GetBlockChunkParams = {}
+    try {
+      if (params.chunk_id) {
+        getBlockChunkParams.chunk_id = params.chunk_id
+      }
+
+      if (params.block_id && params.shard_id) {
+        getBlockChunkParams.block_id = params.block_id
+        getBlockChunkParams.shard_id = params.shard_id
+      }
+
+      const chunkResponse = await this.send<GetBlockWithChunkRpcResponse>('chunk', getBlockChunkParams)
+      return chunkResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getBlockWithChunk',
+        params: getBlockChunkParams,
         error,
       })
     }

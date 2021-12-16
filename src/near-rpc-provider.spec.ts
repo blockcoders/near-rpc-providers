@@ -44,23 +44,18 @@ describe('NearRpcProvider', () => {
   describe('getBlock', () => {
     it('should get the block by number', async () => {
       const status = await provider.status()
-      const block = await provider.getBlock(status.sync_info.latest_block_height)
-      expect(block).to.not.be.undefined
+      expect(provider.getBlock(status.sync_info.latest_block_height)).to.be.rejectedWith(Error)
     })
 
     it('should get the block by hash', async () => {
       const status = await provider.status()
-      const block = await provider.getBlock(status.sync_info.latest_block_hash)
-      expect(block).to.haveOwnProperty('hash')
+      expect(provider.getBlock(status.sync_info.latest_block_hash)).to.be.rejectedWith(Error)
     })
 
     it('should get the same block by hash and number', async () => {
       const status = await provider.status()
-      const block = await provider.getBlock(status.sync_info.latest_block_height)
-      const block2 = await provider.getBlock(status.sync_info.latest_block_hash)
-      expect(block.hash).to.equal(block2.hash)
-      expect(block.number).to.equal(block2.number)
-      expect(block.timestamp).to.equal(block2.timestamp)
+      expect(provider.getBlock(status.sync_info.latest_block_height)).to.be.rejectedWith(Error)
+      expect(provider.getBlock(status.sync_info.latest_block_hash)).to.be.rejectedWith(Error)
     })
 
     it('should throw an error if params are not provided', () => {
@@ -191,6 +186,45 @@ describe('NearRpcProvider', () => {
         throw new Error('could not detect network')
       })
       stub.restore()
+    })
+  })
+
+  describe('getBlockWithChunk', () => {
+    it('should get the block with chunk by chunk id', async () => {
+      const chunk = await provider.getBlockWithChunk({
+        chunk_id: 'ETQ7KxN1nfkLdpzRZS8jxp2rGAj89wem8BNxxHJEYhu',
+      })
+      expect(chunk).to.be.exist
+      expect(chunk).to.not.be.undefined
+    })
+
+    it('should get the block with chunk by shard id', async () => {
+      const chunk = await provider.getBlockWithChunk({
+        block_id: '2uuoUHSmVdQ6LmaobDtt2zWCHxBRGtAR3N9JW4xdewzq',
+        shard_id: 3,
+      })
+      expect(chunk).to.be.exist
+      expect(chunk).to.not.be.undefined
+    })
+
+    it('should throw an error if shard id is not provided', async () => {
+      expect(
+        provider.getBlockWithChunk({
+          block_id: '2uuoUHSmVdQ6LmaobDtt2zWCHxBRGtAR3N9JW4xdewzq',
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if block id is not provided', async () => {
+      expect(
+        provider.getBlockWithChunk({
+          shard_id: 3,
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if params are not provided', async () => {
+      expect(provider.getBlockWithChunk({})).to.be.rejectedWith(Error)
     })
   })
 

@@ -42,21 +42,12 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getBlock', () => {
-    it('should get the block by number', async () => {
-      expect(() => provider.getBlock(75370071)).to.be.rejectedWith(Error)
+    it('should throw an error when get a block by number', async () => {
+      expect(provider.getBlock(75370071)).to.be.rejectedWith(Error)
     })
 
-    it('should get the block by hash', async () => {
-      expect(() => provider.getBlock('4QVtKkFWhpEHjaf3w1QovdZCKX5bF5wE7KZY3sJHscbe')).to.be.rejectedWith(Error)
-    })
-
-    it('should get the same block by hash and number', async () => {
-      expect(() => provider.getBlock(75370071)).to.be.rejectedWith(Error)
-      expect(() => provider.getBlock('4QVtKkFWhpEHjaf3w1QovdZCKX5bF5wE7KZY3sJHscbe')).to.be.rejectedWith(Error)
-    })
-
-    it('should throw an error if params are not provided', () => {
-      expect(() => provider.getBlock('')).to.be.rejectedWith(Error)
+    it('should throw an error when get a block by hash', async () => {
+      expect(provider.getBlock('4QVtKkFWhpEHjaf3w1QovdZCKX5bF5wE7KZY3sJHscbe')).to.be.rejectedWith(Error)
     })
   })
 

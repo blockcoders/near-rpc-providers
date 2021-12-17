@@ -211,34 +211,33 @@ describe('NearRpcProvider', () => {
 
   describe('getBlockWithChunk', () => {
     it('should get the block with chunk by chunk id', async () => {
-      const chunk = await provider.getBlockWithChunk({
-        chunk_id: 'ETQ7KxN1nfkLdpzRZS8jxp2rGAj89wem8BNxxHJEYhu',
+      const block = await provider.getBlockWithChunk({
+        finality: 'final',
       })
-      expect(chunk).to.be.exist
-      expect(chunk).to.not.be.undefined
+      expect(block).to.be.exist
+      expect(block).to.not.be.undefined
     })
 
-    it('should get the block with chunk by shard id', async () => {
-      const chunk = await provider.getBlockWithChunk({
+    it('should get the block with chunk by chunk id', async () => {
+      const block = await provider.getBlockWithChunk({
         block_id: '2uuoUHSmVdQ6LmaobDtt2zWCHxBRGtAR3N9JW4xdewzq',
-        shard_id: 3,
       })
-      expect(chunk).to.be.exist
-      expect(chunk).to.not.be.undefined
-    })
-
-    it('should throw an error if shard id is not provided', async () => {
-      expect(
-        provider.getBlockWithChunk({
-          block_id: '2uuoUHSmVdQ6LmaobDtt2zWCHxBRGtAR3N9JW4xdewzq',
-        }),
-      ).to.be.rejectedWith(Error)
+      expect(block).to.be.exist
+      expect(block).to.not.be.undefined
     })
 
     it('should throw an error if block id is not provided', async () => {
       expect(
         provider.getBlockWithChunk({
-          shard_id: 3,
+          block_id: '',
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if finality is not provided', async () => {
+      expect(
+        provider.getBlockWithChunk({
+          finality: '',
         }),
       ).to.be.rejectedWith(Error)
     })

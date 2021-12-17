@@ -122,26 +122,55 @@ export interface NearBlock {
 export interface NearBlockWithChunk
   extends Pick<NearBlock, 'gasLimit' & 'gasUsed' & 'hash' & 'parentHash' & 'number' & 'timestamp'> {
   result: {
+    author: string
     header: {
-      chunk_hash: string
-      prev_block_hash: string
-      outcome_root: string
+      height: number
+      epoch_id: string
+      next_epoch_id: string
       prev_state_root: string
-      encoded_merkle_root: string
-      encoded_length: number
-      height_created: number
-      height_included: number
-      shard_id: number
+      chunk_receipts_root: string
+      chunk_headers_root: string
+      chunk_tx_root: string
+      outcome_root: string
+      chunks_included: number
+      challenges_root: string
+      timestamp_nanosec: string
+      random_value: string
+      validator_proposals: any[]
+      chunk_mask: boolean[]
+      gas_price: string
       rent_paid: string
       validator_reward: string
-      balance_burnt: string
-      outgoing_receipts_root: string
-      tx_root: string
-      validator_proposals: any[]
+      total_supply: string
+      challenges_result: any[]
+      last_final_block: string
+      last_ds_final_block: string
+      next_bp_hash: string
+      block_merkle_root: string
+      approvals: any[]
       signature: string
+      latest_protocol_version: number
     }
-    transactions: any[]
-    receipts: any[]
+    chunks: [
+      {
+        chunk_hash: string
+        prev_block_hash: string
+        outcome_root: string
+        prev_state_root: string
+        encoded_merkle_root: string
+        encoded_length: number
+        height_created: number
+        height_included: number
+        shard_id: number
+        rent_paid: string
+        validator_reward: string
+        balance_burnt: string
+        outgoing_receipts_root: string
+        tx_root: string
+        validator_proposals: any[]
+        signature: string
+      },
+    ]
   }
 }
 

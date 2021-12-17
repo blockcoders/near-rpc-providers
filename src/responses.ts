@@ -1,4 +1,5 @@
-import { BigNumber } from '@ethersproject/bignumber'
+import { Block } from '@ethersproject/abstract-provider'
+import { Chunk } from 'near-api-js/lib/providers/provider'
 
 export interface RpcResponse {
   jsonrpc: string
@@ -100,80 +101,41 @@ export interface GetTransactionStatusRpcResponse {
   receipts_outcome: any[]
 }
 
-export interface NearBlock {
-  hash: string
-  parentHash: string
-  number: number
-
-  timestamp: number
-  nonce: string
-  difficulty: number
-  _difficulty: BigNumber
-
-  gasLimit: BigNumber
-  gasUsed: BigNumber
-
-  miner: string
-  extraData: string
-
-  baseFeePerGas?: null | BigNumber
+export interface NearBlock
+  extends Pick<Block, 'hash' | 'parentHash' | 'number' | 'timestamp' | 'nonce' | 'miner' | 'gasLimit' | 'gasUsed'> {
+  author: string
+  header: {
+    height: number
+    epoch_id: string
+    next_epoch_id: string
+    prev_state_root: string
+    chunk_receipts_root: string
+    chunk_headers_root: string
+    chunk_tx_root: string
+    outcome_root: string
+    chunks_included: number
+    challenges_root: string
+    timestamp_nanosec: string
+    random_value: string
+    validator_proposals: any[]
+    chunk_mask: boolean[]
+    gas_price: string
+    rent_paid: string
+    validator_reward: string
+    total_supply: string
+    challenges_result: any[]
+    last_final_block: string
+    last_ds_final_block: string
+    next_bp_hash: string
+    block_merkle_root: string
+    approvals: any[]
+    signature: string
+    latest_protocol_version: number
+  }
+  id: string
 }
 
 export interface NearBlockWithChunk
   extends Pick<NearBlock, 'gasLimit' & 'gasUsed' & 'hash' & 'parentHash' & 'number' & 'timestamp'> {
-  result: {
-    author: string
-    header: {
-      height: number
-      epoch_id: string
-      next_epoch_id: string
-      prev_state_root: string
-      chunk_receipts_root: string
-      chunk_headers_root: string
-      chunk_tx_root: string
-      outcome_root: string
-      chunks_included: number
-      challenges_root: string
-      timestamp_nanosec: string
-      random_value: string
-      validator_proposals: any[]
-      chunk_mask: boolean[]
-      gas_price: string
-      rent_paid: string
-      validator_reward: string
-      total_supply: string
-      challenges_result: any[]
-      last_final_block: string
-      last_ds_final_block: string
-      next_bp_hash: string
-      block_merkle_root: string
-      approvals: any[]
-      signature: string
-      latest_protocol_version: number
-    }
-    chunks: [
-      {
-        chunk_hash: string
-        prev_block_hash: string
-        outcome_root: string
-        prev_state_root: string
-        encoded_merkle_root: string
-        encoded_length: number
-        height_created: number
-        height_included: number
-        shard_id: number
-        rent_paid: string
-        validator_reward: string
-        balance_burnt: string
-        outgoing_receipts_root: string
-        tx_root: string
-        validator_proposals: any[]
-        signature: string
-      },
-    ]
-  }
-}
-
-export interface GetBlockWithChunkRpcResponse extends NearBlockWithChunk {
-  id: string
+  chunks: Chunk[]
 }

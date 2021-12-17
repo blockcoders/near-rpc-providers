@@ -23,7 +23,7 @@ import {
   GetLastGasPriceRpcResponse,
   GetCodeRpcResponse,
   GetTransactionStatusRpcResponse,
-  GetBlockWithChunkRpcResponse,
+  NearBlockWithChunk,
 } from './responses'
 
 export class RpcError extends Error {
@@ -296,9 +296,8 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  async getBlockWithChunk(params: Record<string, any>): Promise<GetBlockWithChunkRpcResponse> {
+  async getBlockWithChunk(params: Record<string, any>): Promise<NearBlockWithChunk> {
     const getBlockDetailsParams: GetBlockDetailsParams = {}
-    console.log(params)
     try {
       if (params.finality) {
         getBlockDetailsParams.finality = params.finality
@@ -308,7 +307,7 @@ export class NearRpcProvider extends JsonRpcProvider {
         getBlockDetailsParams.block_id = params.block_id
       }
 
-      const chunkResponse = await this.send<GetBlockWithChunkRpcResponse>('block', getBlockDetailsParams)
+      const chunkResponse = await this.send<NearBlockWithChunk>('block', getBlockDetailsParams)
       return chunkResponse
     } catch (error) {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {

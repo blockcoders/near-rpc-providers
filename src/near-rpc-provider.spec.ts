@@ -43,43 +43,20 @@ describe('NearRpcProvider', () => {
 
   describe('getBlock', () => {
     it('should get the block by number', async () => {
-      try {
-        const status = await provider.status()
-        provider.getBlock(status.sync_info.latest_block_height)
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+      expect(() => provider.getBlock(75370071)).to.be.rejectedWith(Error)
     })
 
     it('should get the block by hash', async () => {
-      try {
-        const status = await provider.status()
-        provider.getBlock(status.sync_info.latest_block_hash)
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+      expect(() => provider.getBlock('4QVtKkFWhpEHjaf3w1QovdZCKX5bF5wE7KZY3sJHscbe')).to.be.rejectedWith(Error)
     })
 
     it('should get the same block by hash and number', async () => {
-      try {
-        const status = await provider.status()
-        provider.getBlock(status.sync_info.latest_block_height)
-        provider.getBlock(status.sync_info.latest_block_hash)
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+      expect(() => provider.getBlock(75370071)).to.be.rejectedWith(Error)
+      expect(() => provider.getBlock('4QVtKkFWhpEHjaf3w1QovdZCKX5bF5wE7KZY3sJHscbe')).to.be.rejectedWith(Error)
     })
 
     it('should throw an error if params are not provided', () => {
-      try {
-        provider.getBlock('')
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+      expect(() => provider.getBlock('')).to.be.rejectedWith(Error)
     })
   })
 

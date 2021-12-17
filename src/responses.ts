@@ -1,3 +1,5 @@
+import { BigNumber } from '@ethersproject/bignumber'
+
 export interface RpcResponse {
   jsonrpc: string
   id: string
@@ -98,7 +100,27 @@ export interface GetTransactionStatusRpcResponse {
   receipts_outcome: any[]
 }
 
-export interface GetBlockWithChunkRpcResponse {
+export interface NearBlock {
+  hash: string
+  parentHash: string
+  number: number
+
+  timestamp: number
+  nonce: string
+  difficulty: number
+  _difficulty: BigNumber
+
+  gasLimit: BigNumber
+  gasUsed: BigNumber
+
+  miner: string
+  extraData: string
+
+  baseFeePerGas?: null | BigNumber
+}
+
+export interface NearBlockWithChunk
+  extends Pick<NearBlock, 'gasLimit' & 'gasUsed' & 'hash' & 'parentHash' & 'number' & 'timestamp'> {
   result: {
     header: {
       chunk_hash: string
@@ -110,8 +132,6 @@ export interface GetBlockWithChunkRpcResponse {
       height_created: number
       height_included: number
       shard_id: number
-      gas_used: number
-      gas_limit: number
       rent_paid: string
       validator_reward: string
       balance_burnt: string
@@ -120,8 +140,11 @@ export interface GetBlockWithChunkRpcResponse {
       validator_proposals: any[]
       signature: string
     }
-    transactions: []
-    receipts: []
+    transactions: any[]
+    receipts: any[]
   }
+}
+
+export interface GetBlockWithChunkRpcResponse extends NearBlockWithChunk {
   id: string
 }

@@ -3,7 +3,6 @@ import { Logger } from '@ethersproject/logger'
 import { deepCopy, getStatic } from '@ethersproject/properties'
 import {
   BlockTag,
-  Block,
   JsonRpcProvider,
   Network,
   Networkish,
@@ -184,15 +183,6 @@ export class NearRpcProvider extends JsonRpcProvider {
         return blockResponse.header.height
       case 'getBalance':
         return this._internalGetBalance(params)
-      case 'getBlock':
-        return logger.throwError(
-          'getBlock function is not supported in Near Provider. Please use getBlockWithChunck function',
-          Logger.errors.SERVER_ERROR,
-          {
-            method: 'getBlock',
-            params: params,
-          },
-        )
       case 'getGasPrice':
         const gasResponse = await this.send<GetLastGasPriceRpcResponse>('gas_price', [null])
         return gasResponse.gas_price
@@ -210,10 +200,15 @@ export class NearRpcProvider extends JsonRpcProvider {
     return statusResponse
   }
 
-  async _getBlock(blockHashOrBlockTag: BlockTag | string | Promise<BlockTag | string>): Promise<Block> {
-    blockHashOrBlockTag = await blockHashOrBlockTag
-    const block = await this.perform('getBlock', { block_id: blockHashOrBlockTag })
-    return block
+  getBlock(blockHashOrBlockTag: BlockTag | string | Promise<BlockTag | string>) {
+    return logger.throwError(
+      'getBlock function is not supported in Near Provider. Please use getBlockWithChunck function',
+      Logger.errors.SERVER_ERROR,
+      {
+        method: 'getBlock',
+        params: blockHashOrBlockTag,
+      },
+    )
   }
 
   async sendTransaction(signedTransaction: string | Promise<string>): Promise<TransactionResponse> {

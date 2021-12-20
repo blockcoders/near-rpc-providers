@@ -42,29 +42,12 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getBlock', () => {
-    it('should get the block by number', async () => {
-      const status = await provider.status()
-      const block = await provider.getBlock(status.sync_info.latest_block_height)
-      expect(block).to.not.be.undefined
+    it('should throw an error when get a block by number', async () => {
+      expect(provider.getBlock(75370071)).to.be.rejectedWith(Error)
     })
 
-    it('should get the block by hash', async () => {
-      const status = await provider.status()
-      const block = await provider.getBlock(status.sync_info.latest_block_hash)
-      expect(block).to.haveOwnProperty('hash')
-    })
-
-    it('should get the same block by hash and number', async () => {
-      const status = await provider.status()
-      const block = await provider.getBlock(status.sync_info.latest_block_height)
-      const block2 = await provider.getBlock(status.sync_info.latest_block_hash)
-      expect(block.hash).to.equal(block2.hash)
-      expect(block.number).to.equal(block2.number)
-      expect(block.timestamp).to.equal(block2.timestamp)
-    })
-
-    it('should throw an error if params are not provided', () => {
-      expect(provider.getBlock('')).to.be.rejectedWith(Error)
+    it('should throw an error when get a block by hash', async () => {
+      expect(provider.getBlock('4QVtKkFWhpEHjaf3w1QovdZCKX5bF5wE7KZY3sJHscbe')).to.be.rejectedWith(Error)
     })
   })
 
@@ -191,6 +174,44 @@ describe('NearRpcProvider', () => {
         throw new Error('could not detect network')
       })
       stub.restore()
+    })
+  })
+
+  describe('getBlockWithChunk', () => {
+    it('should get the block with chunk by finality', async () => {
+      const block = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
+      expect(block).to.be.exist
+      expect(block).to.not.be.undefined
+    })
+
+    it('should get the block with chunk by block id', async () => {
+      const block = await provider.getBlockWithChunk({
+        block_id: 'DETwnQk5okT92MWe7trWUwtKm2Mjzxva7eqDhxDEyoYU',
+      })
+      expect(block).to.be.exist
+      expect(block).to.not.be.undefined
+    })
+
+    it('should throw an error if block id is not provided', async () => {
+      expect(
+        provider.getBlockWithChunk({
+          block_id: '',
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if finality is not provided', async () => {
+      expect(
+        provider.getBlockWithChunk({
+          finality: '',
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if params are not provided', async () => {
+      expect(provider.getBlockWithChunk({})).to.be.rejectedWith(Error)
     })
   })
 

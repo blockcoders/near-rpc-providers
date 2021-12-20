@@ -1,3 +1,5 @@
+import { Block } from '@ethersproject/abstract-provider'
+import { Transaction } from 'near-api-js/lib/providers/provider'
 export interface RpcResponse {
   jsonrpc: string
   id: string
@@ -96,4 +98,36 @@ export interface GetTransactionStatusRpcResponse {
     }
   }
   receipts_outcome: any[]
+}
+
+export interface NearChunkDetails
+  extends Pick<Block, 'hash' | 'parentHash' | 'number' | 'timestamp' | 'nonce' | 'miner' | 'gasLimit' | 'gasUsed'> {
+  result: {
+    author: string
+    header: {
+      chunk_hash: string
+      prev_block_hash: string
+      outcome_root: string
+      prev_state_root: string
+      encoded_merkle_root: string
+      encoded_length: number
+      height_created: number
+      height_included: number
+      shard_id: number
+      rent_paid: string
+      validator_reward: string
+      balance_burnt: string
+      outgoing_receipts_root: string
+      tx_root: string
+      validator_proposals: any[]
+      signature: string
+    }
+    transactions: Transaction[]
+    receipts: any[]
+  }
+  id: string
+}
+
+export interface NearChunkDetailsResponse extends NearChunkDetails {
+  id: string
 }

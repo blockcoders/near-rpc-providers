@@ -14,6 +14,11 @@ export interface GetCodeParams {
   account_id: string | Promise<string>
 }
 
+export interface GetBlockDetailsParams {
+  finality?: Finality
+  block_id?: BlockTag | Promise<BlockTag>
+}
+
 export interface GetChunkDetailsParams {
   chunk_id?: string
   block_id?: BlockTag | Promise<BlockTag>

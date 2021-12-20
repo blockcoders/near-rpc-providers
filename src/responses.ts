@@ -131,3 +131,19 @@ export interface NearChunkDetails
 export interface NearChunkDetailsResponse extends NearChunkDetails {
   id: string
 }
+
+export interface GetStateResponse {
+  result: {
+    values: [
+      {
+        key: string
+        value: string
+        proof: []
+      },
+    ]
+    proof: any[]
+    block_height: number
+    block_hash: string
+  }
+  id: string
+}

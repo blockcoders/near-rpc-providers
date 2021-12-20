@@ -19,3 +19,11 @@ export interface GetChunkDetailsParams {
   block_id?: BlockTag | Promise<BlockTag>
   shard_id?: number
 }
+
+export interface GetStateParams {
+  request_type: 'view_state'
+  finality?: Finality
+  block_id?: BlockTag | Promise<BlockTag>
+  account_id: string | Promise<string>
+  prefix_base64: string
+}

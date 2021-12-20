@@ -362,7 +362,6 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
     try {
       getStateParams = this.checkOption(getStateParams, blockTag)
-      console.log(getStateParams)
       const stateResponse = await this.send<GetStateResponse>('query', getStateParams)
       return stateResponse
     } catch (error) {

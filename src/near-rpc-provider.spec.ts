@@ -178,7 +178,7 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getBlockWithChunk', () => {
-    it('should get the block with chunk by chunk id', async () => {
+    it('should get the block with chunk by finality', async () => {
       const block = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -186,9 +186,9 @@ describe('NearRpcProvider', () => {
       expect(block).to.not.be.undefined
     })
 
-    it('should get the block with chunk by chunk id', async () => {
+    it('should get the block with chunk by block id', async () => {
       const block = await provider.getBlockWithChunk({
-        block_id: '2uuoUHSmVdQ6LmaobDtt2zWCHxBRGtAR3N9JW4xdewzq',
+        block_id: 'DETwnQk5okT92MWe7trWUwtKm2Mjzxva7eqDhxDEyoYU',
       })
       expect(block).to.be.exist
       expect(block).to.not.be.undefined

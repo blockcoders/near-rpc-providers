@@ -202,7 +202,7 @@ export class NearRpcProvider extends JsonRpcProvider {
 
   async getBlock(blockHashOrBlockTag: BlockTag | string | Promise<BlockTag | string>) {
     return logger.throwError(
-      'getBlock function is not supported in Near Provider. Please use getBlockWithChunck function',
+      'getBlock function is not supported in Near Provider. Please use getBlockWithChunk function',
       Logger.errors.SERVER_ERROR,
       {
         method: 'getBlock',

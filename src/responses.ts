@@ -135,7 +135,6 @@ export interface NearBlock
   id: string
 }
 
-export interface NearBlockWithChunk
-  extends Pick<NearBlock, 'gasLimit' & 'gasUsed' & 'hash' & 'parentHash' & 'number' & 'timestamp'> {
+export interface NearBlockWithChunk extends NearBlock {
   chunks: Chunk[]
 }

@@ -13,7 +13,7 @@ import { fetchJson } from '@ethersproject/web'
 import { SignedTransaction } from 'near-api-js/lib/transaction'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { GetBalanceParams, GetCodeParams, GetBlockDetailsParams } from './parameters'
+import { GetBalanceParams, GetCodeParams, GetBlockDetailsParams, GetChunkDetailsParams } from './parameters'
 import {
   BlockRpcResponse,
   GenesisConfigRpcResponse,
@@ -24,6 +24,7 @@ import {
   GetCodeRpcResponse,
   GetTransactionStatusRpcResponse,
   NearBlockWithChunk,
+  NearChunkDetailsResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -313,6 +314,29 @@ export class NearRpcProvider extends JsonRpcProvider {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getBlockWithChunk',
         params: getBlockDetailsParams,
+        error,
+      })
+    }
+  }
+
+  async getChunkDetails(params: Record<string, any>): Promise<NearChunkDetailsResponse> {
+    const getChunkDetailsParams: GetChunkDetailsParams = {}
+    try {
+      if (params.chunk_id) {
+        getChunkDetailsParams.chunk_id = params.chunk_id
+      }
+
+      if (params.block_id && params.shard_id) {
+        getChunkDetailsParams.block_id = params.block_id
+        getChunkDetailsParams.shard_id = params.shard_id
+      }
+
+      const chunkResponse = await this.send<NearChunkDetailsResponse>('chunk', getChunkDetailsParams)
+      return chunkResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getChunkDetails',
+        params: getChunkDetailsParams,
         error,
       })
     }

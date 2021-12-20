@@ -18,3 +18,9 @@ export interface GetBlockDetailsParams {
   finality?: Finality
   block_id?: BlockTag | Promise<BlockTag>
 }
+
+export interface GetChunkDetailsParams {
+  chunk_id?: string
+  block_id?: BlockTag | Promise<BlockTag>
+  shard_id?: number
+}

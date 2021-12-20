@@ -1,6 +1,6 @@
 {
   "name": "near-rpc-providers",
-  "version": "0.0.1-alpha.2",
+  "version": "0.1.0-beta.1",
   "description": "Near JSON RPC Provider compatible with ethers.js",
   "author": "Blockcoders <engineering@blockcoders.io>",
   "license": "MIT",

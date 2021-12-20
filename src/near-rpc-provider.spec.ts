@@ -215,6 +215,53 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('getChunkDetails', () => {
+    it('should get chunk details by chunk id', async () => {
+      const chunk = await provider.getChunkDetails({
+        chunk_id: '3dg4p2XLVgGC9UhSsSi1bEygv7e1t4Ah9ykDMbAAAL89',
+      })
+      expect(chunk).to.be.exist
+      expect(chunk).to.not.be.undefined
+    })
+
+    it('should get chunk details by block and shard id', async () => {
+      const chunk = await provider.getChunkDetails({
+        block_id: '9up7oa7PXH8WpV4tLTCQumdGQSQrewY8Rzwra2i7rozu',
+        shard_id: 1,
+      })
+      expect(chunk).to.be.exist
+      expect(chunk).to.not.be.undefined
+    })
+
+    it('should throw an error if chunk id is not provided', async () => {
+      expect(
+        provider.getChunkDetails({
+          chunk_id: '',
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if block id is not provided', async () => {
+      expect(
+        provider.getChunkDetails({
+          shard_id: 0,
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if shard id is not provided', async () => {
+      expect(
+        provider.getChunkDetails({
+          block_id: 'GKtduZdJkkFWgs3qcfdtLripAb5yorA53RFJ8uqES6qJ',
+        }),
+      ).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if params are not provided', async () => {
+      expect(provider.getChunkDetails({})).to.be.rejectedWith(Error)
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

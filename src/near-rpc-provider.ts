@@ -282,7 +282,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  private checkOption(params: any, blockTag: BlockTag | Promise<BlockTag>) {
+  private _internalCheckOption(params: any, blockTag: BlockTag | Promise<BlockTag>) {
     if (blockTag === 'latest') {
       params.finality = 'final'
     } else {
@@ -297,7 +297,7 @@ export class NearRpcProvider extends JsonRpcProvider {
       account_id: addressOrName,
     }
     try {
-      getCodeParams = this.checkOption(getCodeParams, blockTag)
+      getCodeParams = this._internalCheckOption(getCodeParams, blockTag)
       const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
       return codeResponse.code_base64
     } catch (error) {
@@ -361,7 +361,7 @@ export class NearRpcProvider extends JsonRpcProvider {
       prefix_base64: '',
     }
     try {
-      getStateParams = this.checkOption(getStateParams, blockTag)
+      getStateParams = this._internalCheckOption(getStateParams, blockTag)
       const stateResponse = await this.send<GetStateResponse>('query', getStateParams)
       return stateResponse
     } catch (error) {

@@ -376,7 +376,7 @@ export class NearRpcProvider extends JsonRpcProvider {
   }
 
   async getAccessKey(addressOrName: string, publicKey: string, blockTag: BlockTag): Promise<NearAccessKeyResponse> {
-    let getaccessKeyParams: GetAccessKeyParams = {
+    let getAccessKeyParams: GetAccessKeyParams = {
       request_type: 'view_access_key',
       account_id: addressOrName,
       public_key: publicKey,

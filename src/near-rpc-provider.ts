@@ -19,6 +19,7 @@ import {
   GetChunkDetailsParams,
   GetStateParams,
   GetBlockDetailsParams,
+  GetAccessKeyListParams,
 } from './parameters'
 import {
   BlockRpcResponse,
@@ -32,6 +33,7 @@ import {
   NearBlockWithChunk,
   NearChunkDetailsResponse,
   GetStateResponse,
+  GetAccessKeyListResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -368,6 +370,27 @@ export class NearRpcProvider extends JsonRpcProvider {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getContractState',
         params: getStateParams,
+        error,
+      })
+    }
+  }
+
+  async getAccessKeyList(
+    addressOrName: string | Promise<string>,
+    blockTag: BlockTag | Promise<BlockTag>,
+  ): Promise<GetAccessKeyListResponse> {
+    let getAccessKeyListParams: GetAccessKeyListParams = {
+      request_type: 'view_access_key_list',
+      account_id: await addressOrName,
+    }
+    try {
+      getAccessKeyListParams = this._setParamsFinalityOrBlockId(getAccessKeyListParams, await blockTag)
+      const accessKeyListResponse = await this.send<GetAccessKeyListResponse>('query', getAccessKeyListParams)
+      return accessKeyListResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getAccessKeyList',
+        params: getAccessKeyListParams,
         error,
       })
     }

@@ -294,6 +294,38 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('getAccessKeyList', () => {
+    it('should get the access key list by finality', async () => {
+      const accessKeyList = await provider.getAccessKeyList('blockcoders.testnet', 'latest')
+      expect(accessKeyList).to.be.exist
+      expect(accessKeyList.keys).length.to.be.gt(0)
+      expect(accessKeyList.keys[0].access_key).to.be.exist
+      expect(accessKeyList.keys[0].public_key).to.be.exist
+    })
+
+    it('should get the access key list by block height', async () => {
+      const status = await provider.status()
+      const accessKeyList = await provider.getAccessKeyList('blockcoders.testnet', status.sync_info.latest_block_height)
+      expect(accessKeyList).to.not.be.undefined
+      expect(accessKeyList.keys).length.to.be.gt(0)
+      expect(accessKeyList.keys[0].access_key).to.be.exist
+      expect(accessKeyList.keys[0].public_key).to.be.exist
+    })
+
+    it('should get the access key list by block hash', async () => {
+      const status = await provider.status()
+      const accessKeyList = await provider.getAccessKeyList('blockcoders.testnet', status.sync_info.latest_block_hash)
+      expect(accessKeyList).to.not.be.undefined
+      expect(accessKeyList.keys).length.to.be.gt(0)
+      expect(accessKeyList.keys[0].access_key).to.be.exist
+      expect(accessKeyList.keys[0].public_key).to.be.exist
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getAccessKeyList('', '')).to.be.rejectedWith(Error)
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

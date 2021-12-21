@@ -32,3 +32,10 @@ export interface GetStateParams {
   account_id: string
   prefix_base64: string
 }
+
+export interface GetAccessKeyListParams {
+  request_type: 'view_access_key_list'
+  finality?: Finality
+  block_id?: BlockTag
+  account_id: string
+}

@@ -182,7 +182,7 @@ export interface GetStateResponse {
   id: string
 }
 
-export interface NearAccessKeyResponse {
+export interface GetAccessKeyResponse {
   result: {
     nonce: number
     permission: {

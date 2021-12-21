@@ -282,7 +282,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  private _internalCheckOption(params: any, blockTag: BlockTag | Promise<BlockTag>) {
+  private _setParamsFinalityOrBlockId(params: any, blockTag: BlockTag) {
     if (blockTag === 'latest') {
       params.finality = 'final'
     } else {
@@ -291,13 +291,13 @@ export class NearRpcProvider extends JsonRpcProvider {
     return params
   }
 
-  async getCode(addressOrName: string | Promise<string>, blockTag: BlockTag | Promise<BlockTag>): Promise<string> {
+  async getCode(addressOrName: string | Promise<string>, blockTag: BlockTag): Promise<string> {
     let getCodeParams: GetCodeParams = {
       request_type: 'view_code',
       account_id: addressOrName,
     }
     try {
-      getCodeParams = this._internalCheckOption(getCodeParams, blockTag)
+      getCodeParams = this._setParamsFinalityOrBlockId(getCodeParams, blockTag)
       const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
       return codeResponse.code_base64
     } catch (error) {
@@ -354,14 +354,14 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  async getContractState(addressOrName: string | Promise<string>, blockTag: BlockTag | Promise<BlockTag>) {
+  async getContractState(addressOrName: string, blockTag: BlockTag) {
     let getStateParams: GetStateParams = {
       request_type: 'view_state',
       account_id: addressOrName,
       prefix_base64: '',
     }
     try {
-      getStateParams = this._internalCheckOption(getStateParams, blockTag)
+      getStateParams = this._setParamsFinalityOrBlockId(getStateParams, blockTag)
       const stateResponse = await this.send<GetStateResponse>('query', getStateParams)
       return stateResponse
     } catch (error) {

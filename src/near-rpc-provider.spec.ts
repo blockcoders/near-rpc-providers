@@ -268,7 +268,7 @@ describe('NearRpcProvider', () => {
       expect(state).to.be.exist
     })
 
-    it('should get the contract state by address', async () => {
+    it('should get the contract state by block_height', async () => {
       const status = await provider.status()
       const state = await provider.getContractState('blockcoders.testnet', status.sync_info.latest_block_height)
       expect(state).to.not.be.undefined

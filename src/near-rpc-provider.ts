@@ -19,6 +19,7 @@ import {
   GetChunkDetailsParams,
   GetStateParams,
   GetBlockDetailsParams,
+  GetAccessKeyParams,
 } from './parameters'
 import {
   BlockRpcResponse,
@@ -32,6 +33,7 @@ import {
   NearBlockWithChunk,
   NearChunkDetailsResponse,
   GetStateResponse,
+  NearAccessKeyResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -291,7 +293,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     return params
   }
 
-  async getCode(addressOrName: string | Promise<string>, blockTag: BlockTag): Promise<string> {
+  async getCode(addressOrName: string, blockTag: BlockTag): Promise<string> {
     let getCodeParams: GetCodeParams = {
       request_type: 'view_code',
       account_id: addressOrName,
@@ -354,7 +356,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  async getContractState(addressOrName: string, blockTag: BlockTag) {
+  async getContractState(addressOrName: string, blockTag: BlockTag): Promise<GetStateResponse> {
     let getStateParams: GetStateParams = {
       request_type: 'view_state',
       account_id: addressOrName,
@@ -368,6 +370,25 @@ export class NearRpcProvider extends JsonRpcProvider {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getContractState',
         params: getStateParams,
+        error,
+      })
+    }
+  }
+
+  async getAccessKey(addressOrName: string, publicKey: string, blockTag: BlockTag): Promise<NearAccessKeyResponse> {
+    let getaccessKeyParams: GetAccessKeyParams = {
+      request_type: 'view_access_key',
+      account_id: addressOrName,
+      public_key: publicKey,
+    }
+    try {
+      getaccessKeyParams = this._setParamsFinalityOrBlockId(getaccessKeyParams, blockTag)
+      const codeResponse = await this.send<NearAccessKeyResponse>('query', getaccessKeyParams)
+      return codeResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getAccessKey',
+        params: getaccessKeyParams,
         error,
       })
     }

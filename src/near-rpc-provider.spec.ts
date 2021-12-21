@@ -36,8 +36,8 @@ describe('NearRpcProvider', () => {
       expect(balance).to.be.instanceOf(BigNumber)
     })
 
-    it('should throw an error if params are not provided', () => {
-      expect(provider.getBalance('', '')).to.be.rejectedWith(Error)
+    it('should throw an error if params are not provided', async () => {
+      expect(provider.getBalance('')).to.be.rejectedWith(Error)
     })
   })
 
@@ -58,7 +58,7 @@ describe('NearRpcProvider', () => {
       expect(gasPrice.gt(BigNumber.from(0))).to.be.true
     })
 
-    it('should throw an error if there is something wrong', () => {
+    it('should throw an error if there is something wrong', async () => {
       expect(provider.getGasPrice()).to.be.rejectedWith(Error)
     })
   })
@@ -102,7 +102,7 @@ describe('NearRpcProvider', () => {
       expect(code).to.be.exist
     })
 
-    it('should throw an error if params are not provided', () => {
+    it('should throw an error if params are not provided', async () => {
       expect(provider.getCode('', '')).to.be.rejectedWith(Error)
     })
   })
@@ -291,6 +291,31 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', () => {
       expect(provider.getContractState('', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getAccessKey', () => {
+    it('should get the access key by block id', async () => {
+      // const status = await provider.status()
+      const accessKey = await provider.getAccessKey(
+        'client.chainlink.testnet',
+        'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
+        75866664,
+      )
+      expect(accessKey).to.not.be.undefined
+    })
+
+    it('should get the access key by finality', async () => {
+      const accessKey = await provider.getAccessKey(
+        'client.chainlink.testnet',
+        'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
+        'latest',
+      )
+      expect(accessKey).to.be.exist
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getAccessKey('', '', '')).to.be.rejectedWith(Error)
     })
   })
 

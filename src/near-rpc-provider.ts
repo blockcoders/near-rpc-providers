@@ -13,7 +13,13 @@ import { fetchJson } from '@ethersproject/web'
 import { SignedTransaction } from 'near-api-js/lib/transaction'
 import { logger } from './logger'
 import { getNetwork } from './networks'
-import { GetBalanceParams, GetCodeParams, GetBlockDetailsParams, GetChunkDetailsParams } from './parameters'
+import {
+  GetBalanceParams,
+  GetCodeParams,
+  GetChunkDetailsParams,
+  GetStateParams,
+  GetBlockDetailsParams,
+} from './parameters'
 import {
   BlockRpcResponse,
   GenesisConfigRpcResponse,
@@ -25,6 +31,7 @@ import {
   GetTransactionStatusRpcResponse,
   NearBlockWithChunk,
   NearChunkDetailsResponse,
+  GetStateResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -275,17 +282,22 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  async getCode(addressOrName: string | Promise<string>, blockTag?: BlockTag | Promise<BlockTag>): Promise<string> {
-    const getCodeParams: GetCodeParams = {
+  private _setParamsFinalityOrBlockId(params: any, blockTag: BlockTag) {
+    if (blockTag === 'latest') {
+      params.finality = 'final'
+    } else {
+      params.block_id = blockTag
+    }
+    return params
+  }
+
+  async getCode(addressOrName: string | Promise<string>, blockTag: BlockTag): Promise<string> {
+    let getCodeParams: GetCodeParams = {
       request_type: 'view_code',
       account_id: addressOrName,
     }
     try {
-      if (blockTag === 'latest') {
-        getCodeParams.finality = 'final'
-      } else {
-        getCodeParams.block_id = blockTag
-      }
+      getCodeParams = this._setParamsFinalityOrBlockId(getCodeParams, blockTag)
       const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
       return codeResponse.code_base64
     } catch (error) {
@@ -337,6 +349,25 @@ export class NearRpcProvider extends JsonRpcProvider {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getChunkDetails',
         params: getChunkDetailsParams,
+        error,
+      })
+    }
+  }
+
+  async getContractState(addressOrName: string, blockTag: BlockTag) {
+    let getStateParams: GetStateParams = {
+      request_type: 'view_state',
+      account_id: addressOrName,
+      prefix_base64: '',
+    }
+    try {
+      getStateParams = this._setParamsFinalityOrBlockId(getStateParams, blockTag)
+      const stateResponse = await this.send<GetStateResponse>('query', getStateParams)
+      return stateResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getContractState',
+        params: getStateParams,
         error,
       })
     }

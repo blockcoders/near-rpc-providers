@@ -10,17 +10,25 @@ export interface GetBalanceParams {
 export interface GetCodeParams {
   request_type: 'view_code'
   finality?: Finality
-  block_id?: BlockTag | Promise<BlockTag>
+  block_id?: BlockTag
   account_id: string | Promise<string>
 }
 
 export interface GetBlockDetailsParams {
   finality?: Finality
-  block_id?: BlockTag | Promise<BlockTag>
+  block_id?: BlockTag
 }
 
 export interface GetChunkDetailsParams {
   chunk_id?: string
-  block_id?: BlockTag | Promise<BlockTag>
+  block_id?: BlockTag
   shard_id?: number
+}
+
+export interface GetStateParams {
+  request_type: 'view_state'
+  finality?: Finality
+  block_id?: BlockTag
+  account_id: string
+  prefix_base64: string
 }

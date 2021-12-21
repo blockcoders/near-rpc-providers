@@ -103,7 +103,7 @@ describe('NearRpcProvider', () => {
     })
 
     it('should throw an error if params are not provided', () => {
-      expect(provider.getCode('')).to.be.rejectedWith(Error)
+      expect(provider.getCode('', '')).to.be.rejectedWith(Error)
     })
   })
 
@@ -259,6 +259,38 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', async () => {
       expect(provider.getChunkDetails({})).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getContractState', () => {
+    it('should get the contract state', async () => {
+      const state = await provider.getContractState('blockcoders.testnet', 'latest')
+      expect(state).to.be.exist
+      expect(state.values).length.to.be.gte(0)
+      expect(state.block_height).to.be.exist
+      expect(state.block_hash).to.be.exist
+    })
+
+    it('should get the contract state by block_height', async () => {
+      const status = await provider.status()
+      const state = await provider.getContractState('blockcoders.testnet', status.sync_info.latest_block_height)
+      expect(state).to.not.be.undefined
+      expect(state.values).length.to.be.gte(0)
+      expect(state.block_height).to.be.exist
+      expect(state.block_hash).to.be.exist
+    })
+
+    it('should get the contract state by block_hash', async () => {
+      const status = await provider.status()
+      const state = await provider.getContractState('blockcoders.testnet', status.sync_info.latest_block_hash)
+      expect(state).to.not.be.undefined
+      expect(state.values).length.to.be.gte(0)
+      expect(state.block_height).to.be.exist
+      expect(state.block_hash).to.be.exist
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getContractState('', '')).to.be.rejectedWith(Error)
     })
   })
 

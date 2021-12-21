@@ -274,7 +274,7 @@ describe('NearRpcProvider', () => {
       expect(state).to.not.be.undefined
     })
 
-    it('should get the contract state by hash', async () => {
+    it('should get the contract state by block_hash', async () => {
       const status = await provider.status()
       const state = await provider.getContractState('blockcoders.testnet', status.sync_info.latest_block_hash)
       expect(state).to.not.be.undefined

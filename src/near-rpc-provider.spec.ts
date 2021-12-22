@@ -187,8 +187,11 @@ describe('NearRpcProvider', () => {
     })
 
     it('should get the block with chunk by block id', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       const block = await provider.getBlockWithChunk({
-        block_id: '3WigTDAqXZV435vfDPZoth4qdEdiAVGVsNkwjcRnctCn',
+        block_id: latest.chunks[0].prev_block_hash,
       })
       expect(block).to.be.exist
       expect(block).to.not.be.undefined
@@ -215,19 +218,25 @@ describe('NearRpcProvider', () => {
     })
   })
 
-  describe('getChunkDetails', () => {
+  describe('getChunkDetails', async () => {
     it('should get chunk details by chunk id', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       const chunk = await provider.getChunkDetails({
-        chunk_id: 'FqQe24FfDyNvB8F8gxka9n8maG6q8FgPF43JHtTSsi6',
+        chunk_id: latest.chunks[0].chunk_hash,
       })
       expect(chunk).to.be.exist
       expect(chunk).to.not.be.undefined
     })
 
     it('should get chunk details by block and shard id', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       const chunk = await provider.getChunkDetails({
-        block_id: '3WigTDAqXZV435vfDPZoth4qdEdiAVGVsNkwjcRnctCn',
-        shard_id: 3,
+        block_id: latest.chunks[1].prev_block_hash,
+        shard_id: latest.chunks[1].shard_id,
       })
       expect(chunk).to.be.exist
       expect(chunk).to.not.be.undefined
@@ -250,9 +259,12 @@ describe('NearRpcProvider', () => {
     })
 
     it('should throw an error if shard id is not provided', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       expect(
         provider.getChunkDetails({
-          block_id: 58934027,
+          block_id: latest.chunks[1].prev_block_hash,
         }),
       ).to.be.rejectedWith(Error)
     })

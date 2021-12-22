@@ -37,7 +37,7 @@ describe('NearRpcProvider', () => {
     })
 
     it('should throw an error if params are not provided', () => {
-      expect(provider.getBalance('', '')).to.be.rejectedWith(Error)
+      expect(provider.getBalance('')).to.be.rejectedWith(Error)
     })
   })
 
@@ -187,8 +187,11 @@ describe('NearRpcProvider', () => {
     })
 
     it('should get the block with chunk by block id', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       const block = await provider.getBlockWithChunk({
-        block_id: 'DETwnQk5okT92MWe7trWUwtKm2Mjzxva7eqDhxDEyoYU',
+        block_id: latest.chunks[0].prev_block_hash,
       })
       expect(block).to.be.exist
       expect(block).to.not.be.undefined
@@ -215,19 +218,25 @@ describe('NearRpcProvider', () => {
     })
   })
 
-  describe('getChunkDetails', () => {
+  describe('getChunkDetails', async () => {
     it('should get chunk details by chunk id', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       const chunk = await provider.getChunkDetails({
-        chunk_id: '3dg4p2XLVgGC9UhSsSi1bEygv7e1t4Ah9ykDMbAAAL89',
+        chunk_id: latest.chunks[0].chunk_hash,
       })
       expect(chunk).to.be.exist
       expect(chunk).to.not.be.undefined
     })
 
     it('should get chunk details by block and shard id', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       const chunk = await provider.getChunkDetails({
-        block_id: '9up7oa7PXH8WpV4tLTCQumdGQSQrewY8Rzwra2i7rozu',
-        shard_id: 1,
+        block_id: latest.chunks[1].prev_block_hash,
+        shard_id: latest.chunks[1].shard_id,
       })
       expect(chunk).to.be.exist
       expect(chunk).to.not.be.undefined
@@ -250,9 +259,12 @@ describe('NearRpcProvider', () => {
     })
 
     it('should throw an error if shard id is not provided', async () => {
+      const latest = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
       expect(
         provider.getChunkDetails({
-          block_id: 'GKtduZdJkkFWgs3qcfdtLripAb5yorA53RFJ8uqES6qJ',
+          block_id: latest.chunks[1].prev_block_hash,
         }),
       ).to.be.rejectedWith(Error)
     })
@@ -291,6 +303,48 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', () => {
       expect(provider.getContractState('', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getValidatorStatus', () => {
+    it('should get details and the state of validation on the blockchain by block hash', async () => {
+      const block = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
+      const validator = await provider.getValidatorStatus([block.parentHash])
+      expect(validator).to.exist
+      expect(validator.current_validators).length.to.be.gte(0)
+      expect(validator.next_validators).length.to.be.gte(0)
+      expect(validator.current_fishermen).length.to.be.gte(0)
+      expect(validator.next_fishermen).length.to.be.gte(0)
+      expect(validator.current_proposals).length.to.be.gte(0)
+    })
+
+    it('should get details and the state of validation on the blockchain by block height', async () => {
+      const block = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
+      const validator = await provider.getValidatorStatus([block.number])
+      expect(validator).to.exist
+      expect(validator.current_validators).length.to.be.gte(0)
+      expect(validator.next_validators).length.to.be.gte(0)
+      expect(validator.current_fishermen).length.to.be.gte(0)
+      expect(validator.next_fishermen).length.to.be.gte(0)
+      expect(validator.current_proposals).length.to.be.gte(0)
+    })
+
+    it('should get details and the state of validation on the blockchain with nullable array', async () => {
+      const validator = await provider.getValidatorStatus([null])
+      expect(validator).to.exist
+      expect(validator.current_validators).length.to.be.gte(0)
+      expect(validator.next_validators).length.to.be.gte(0)
+      expect(validator.current_fishermen).length.to.be.gte(0)
+      expect(validator.next_fishermen).length.to.be.gte(0)
+      expect(validator.current_proposals).length.to.be.gte(0)
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getValidatorStatus([])).to.be.rejectedWith(Error)
     })
   })
 

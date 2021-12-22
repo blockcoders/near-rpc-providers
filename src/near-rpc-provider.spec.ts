@@ -188,7 +188,7 @@ describe('NearRpcProvider', () => {
 
     it('should get the block with chunk by block id', async () => {
       const block = await provider.getBlockWithChunk({
-        block_id: 'DETwnQk5okT92MWe7trWUwtKm2Mjzxva7eqDhxDEyoYU',
+        block_id: '3WigTDAqXZV435vfDPZoth4qdEdiAVGVsNkwjcRnctCn',
       })
       expect(block).to.be.exist
       expect(block).to.not.be.undefined
@@ -218,7 +218,7 @@ describe('NearRpcProvider', () => {
   describe('getChunkDetails', () => {
     it('should get chunk details by chunk id', async () => {
       const chunk = await provider.getChunkDetails({
-        chunk_id: '3dg4p2XLVgGC9UhSsSi1bEygv7e1t4Ah9ykDMbAAAL89',
+        chunk_id: 'FqQe24FfDyNvB8F8gxka9n8maG6q8FgPF43JHtTSsi6',
       })
       expect(chunk).to.be.exist
       expect(chunk).to.not.be.undefined
@@ -226,8 +226,8 @@ describe('NearRpcProvider', () => {
 
     it('should get chunk details by block and shard id', async () => {
       const chunk = await provider.getChunkDetails({
-        block_id: '9up7oa7PXH8WpV4tLTCQumdGQSQrewY8Rzwra2i7rozu',
-        shard_id: 1,
+        block_id: '3WigTDAqXZV435vfDPZoth4qdEdiAVGVsNkwjcRnctCn',
+        shard_id: 3,
       })
       expect(chunk).to.be.exist
       expect(chunk).to.not.be.undefined
@@ -252,7 +252,7 @@ describe('NearRpcProvider', () => {
     it('should throw an error if shard id is not provided', async () => {
       expect(
         provider.getChunkDetails({
-          block_id: 'GKtduZdJkkFWgs3qcfdtLripAb5yorA53RFJ8uqES6qJ',
+          block_id: 58934027,
         }),
       ).to.be.rejectedWith(Error)
     })
@@ -291,6 +291,19 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', () => {
       expect(provider.getContractState('', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getNetworkInfo', () => {
+    it('should get network information', async () => {
+      const network = await provider.getNetworkInfo()
+      expect(network).to.be.exist
+      expect(network.active_peers).length.to.be.gt(0)
+      expect(network.known_producers).length.to.be.gt(0)
+    })
+
+    it('should throw an error if something went wrong with the node', async () => {
+      expect(provider.getNetworkInfo()).to.be.rejectedWith(Error)
     })
   })
 

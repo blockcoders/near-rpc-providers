@@ -200,7 +200,6 @@ export interface GetAccessKeyListResponse {
   ]
   block_height: number
   block_hash: string
-  id: string
 }
 
 export interface GetAccessKeyResponse {

@@ -19,6 +19,7 @@ import {
   GetChunkDetailsParams,
   GetStateParams,
   GetBlockDetailsParams,
+  GetAccessKeyParams,
 } from './parameters'
 import {
   BlockRpcResponse,
@@ -32,6 +33,7 @@ import {
   NearBlockWithChunk,
   NearChunkDetailsResponse,
   GetStateResponse,
+  GetAccessKeyResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -291,13 +293,13 @@ export class NearRpcProvider extends JsonRpcProvider {
     return params
   }
 
-  async getCode(addressOrName: string | Promise<string>, blockTag: BlockTag): Promise<string> {
+  async getCode(addressOrName: string | Promise<string>, blockTag: BlockTag | Promise<BlockTag>): Promise<string> {
     let getCodeParams: GetCodeParams = {
       request_type: 'view_code',
-      account_id: addressOrName,
+      account_id: await addressOrName,
     }
     try {
-      getCodeParams = this._setParamsFinalityOrBlockId(getCodeParams, blockTag)
+      getCodeParams = this._setParamsFinalityOrBlockId(getCodeParams, await blockTag)
       const codeResponse = await this.send<GetCodeRpcResponse>('query', getCodeParams)
       return codeResponse.code_base64
     } catch (error) {
@@ -354,20 +356,46 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
   }
 
-  async getContractState(addressOrName: string, blockTag: BlockTag) {
+  async getContractState(
+    addressOrName: string | Promise<string>,
+    blockTag: BlockTag | Promise<BlockTag>,
+  ): Promise<GetStateResponse> {
     let getStateParams: GetStateParams = {
       request_type: 'view_state',
-      account_id: addressOrName,
+      account_id: await addressOrName,
       prefix_base64: '',
     }
     try {
-      getStateParams = this._setParamsFinalityOrBlockId(getStateParams, blockTag)
+      getStateParams = this._setParamsFinalityOrBlockId(getStateParams, await blockTag)
       const stateResponse = await this.send<GetStateResponse>('query', getStateParams)
       return stateResponse
     } catch (error) {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getContractState',
         params: getStateParams,
+        error,
+      })
+    }
+  }
+
+  async getAccessKey(
+    addressOrName: string | Promise<string>,
+    publicKey: string,
+    blockTag: BlockTag | Promise<BlockTag>,
+  ): Promise<GetAccessKeyResponse> {
+    let getAccessKeyParams: GetAccessKeyParams = {
+      request_type: 'view_access_key',
+      account_id: await addressOrName,
+      public_key: publicKey,
+    }
+    try {
+      getAccessKeyParams = this._setParamsFinalityOrBlockId(getAccessKeyParams, await blockTag)
+      const accessKeyResponse = await this.send<GetAccessKeyResponse>('query', getAccessKeyParams)
+      return accessKeyResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getAccessKey',
+        params: getAccessKeyParams,
         error,
       })
     }

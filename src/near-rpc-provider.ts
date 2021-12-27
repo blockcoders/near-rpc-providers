@@ -390,8 +390,8 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
     try {
       getAccessKeyParams = this._setParamsFinalityOrBlockId(getAccessKeyParams, await blockTag)
-      const codeResponse = await this.send<GetAccessKeyResponse>('query', getAccessKeyParams)
-      return codeResponse
+      const accessKeyResponse = await this.send<GetAccessKeyResponse>('query', getAccessKeyParams)
+      return accessKeyResponse
     } catch (error) {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getAccessKey',

@@ -31,6 +31,13 @@ export interface GetStateParams extends Params {
   prefix_base64: string
 }
 
+export interface GetAccessKeyListParams {
+  request_type: 'view_access_key_list'
+  finality?: Finality
+  block_id?: BlockTag
+  account_id: string
+}
+
 export interface GetAccessKeyParams extends Params {
   request_type: 'view_access_key'
   account_id: string

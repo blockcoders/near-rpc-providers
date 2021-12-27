@@ -72,16 +72,16 @@ describe('NearRpcProvider', () => {
       expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
     })
 
-    // Uncomment when we are able to query archival nodes
-    // it('should send a transaction and be able to wait', async () => {
-    //   const tx = await provider.sendTransaction(
-    //     'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
-    //   )
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should send a transaction and be able to wait', async () => {
+      const tx = await provider.sendTransaction(
+        'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
+      )
 
-    //   expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
-    //   const receipt = await tx.wait()
-    //   console.log(receipt)
-    // })
+      expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
+      const receipt = await tx.wait()
+      console.log(receipt)
+    })
   })
 
   describe('getCode', () => {
@@ -186,7 +186,8 @@ describe('NearRpcProvider', () => {
       expect(block).to.not.be.undefined
     })
 
-    it('should get the block with chunk by block id', async () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get the block with chunk by block id', async () => {
       const block = await provider.getBlockWithChunk({
         block_id: 'DETwnQk5okT92MWe7trWUwtKm2Mjzxva7eqDhxDEyoYU',
       })
@@ -216,7 +217,8 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getChunkDetails', () => {
-    it('should get chunk details by chunk id', async () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get chunk details by chunk id', async () => {
       const chunk = await provider.getChunkDetails({
         chunk_id: '3dg4p2XLVgGC9UhSsSi1bEygv7e1t4Ah9ykDMbAAAL89',
       })
@@ -224,7 +226,8 @@ describe('NearRpcProvider', () => {
       expect(chunk).to.not.be.undefined
     })
 
-    it('should get chunk details by block and shard id', async () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get chunk details by block and shard id', async () => {
       const chunk = await provider.getChunkDetails({
         block_id: '9up7oa7PXH8WpV4tLTCQumdGQSQrewY8Rzwra2i7rozu',
         shard_id: 1,
@@ -295,8 +298,8 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getAccessKey', () => {
-    it('should get the access key by block id', async () => {
-      // const status = await provider.status()
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get the access key by block id', async () => {
       const accessKey = await provider.getAccessKey(
         'client.chainlink.testnet',
         'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
@@ -311,7 +314,11 @@ describe('NearRpcProvider', () => {
         'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
         'latest',
       )
-      expect(accessKey).to.be.exist
+
+      expect(accessKey).to.exist
+      expect(accessKey.block_hash).to.be.string
+      expect(accessKey.block_height).to.be.greaterThan(0)
+      expect(accessKey.nonce).to.be.greaterThan(0)
     })
 
     it('should throw an error if params are not provided', () => {

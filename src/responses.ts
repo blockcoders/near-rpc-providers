@@ -183,17 +183,14 @@ export interface GetStateResponse {
 }
 
 export interface GetAccessKeyResponse {
-  result: {
-    nonce: number
-    permission: {
-      FunctionCall: {
-        allowance: string
-        receiver_id: string
-        method_names: string[]
-      }
+  nonce: number
+  permission: {
+    FunctionCall: {
+      allowance: string
+      receiver_id: string
+      method_names: string[]
     }
-    block_height: number
-    block_hash: string
   }
-  id: string
+  block_height: number
+  block_hash: string
 }

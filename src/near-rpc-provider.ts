@@ -34,6 +34,7 @@ import {
   NearBlockWithChunk,
   NearChunkDetailsResponse,
   GetStateResponse,
+  GetValidatorStatusResponse,
   GetNetworkInfoResponse,
   GetAccessKeyListResponse,
   GetAccessKeyResponse,
@@ -377,6 +378,18 @@ export class NearRpcProvider extends JsonRpcProvider {
         method: 'getContractState',
         params: getStateParams,
         error,
+      })
+    }
+  }
+
+  async getValidatorStatus(blockHashOrBlockNumber: string[] | number[] | null[]): Promise<GetValidatorStatusResponse> {
+    try {
+      const validatorResponse = await this.send<GetValidatorStatusResponse>('validators', blockHashOrBlockNumber)
+      return validatorResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getValidatorStatus',
+        params: blockHashOrBlockNumber,
       })
     }
   }

@@ -182,6 +182,52 @@ export interface GetStateResponse {
   id: string
 }
 
+export interface GetValidatorStatusResponse {
+  current_validators: [
+    {
+      account_id: string
+      public_key: string
+      is_slashed: boolean
+      stake: string
+      shards: number[]
+      num_produced_blocks: number
+      num_expected_blocks: number
+    },
+  ]
+  next_validators: [
+    {
+      account_id: string
+      public_key: string
+      stake: string
+      shards: number[]
+    },
+  ]
+  current_fishermen: [
+    {
+      account_id: string
+      public_key: string
+      stake: string
+    },
+  ]
+  next_fishermen: [
+    {
+      account_id: string
+      public_key: string
+      stake: string
+    },
+  ]
+  current_proposals: [
+    {
+      account_id: string
+      public_key: string
+      stake: string
+    },
+  ]
+  prev_epoch_kickout: any[]
+  epoch_start_height: number
+  epoch_height: number
+}
+
 export interface GetNetworkInfoResponse {
   active_peers: [
     {

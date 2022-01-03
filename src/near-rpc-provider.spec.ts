@@ -309,6 +309,48 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('getValidatorStatus', () => {
+    it('should get details and the state of validation on the blockchain by block hash', async () => {
+      const block = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
+      const validator = await provider.getValidatorStatus([block.parentHash])
+      expect(validator).to.exist
+      expect(validator.current_validators).length.to.be.gte(0)
+      expect(validator.next_validators).length.to.be.gte(0)
+      expect(validator.current_fishermen).length.to.be.gte(0)
+      expect(validator.next_fishermen).length.to.be.gte(0)
+      expect(validator.current_proposals).length.to.be.gte(0)
+    })
+
+    it('should get details and the state of validation on the blockchain by block height', async () => {
+      const block = await provider.getBlockWithChunk({
+        finality: 'final',
+      })
+      const validator = await provider.getValidatorStatus([block.number])
+      expect(validator).to.exist
+      expect(validator.current_validators).length.to.be.gte(0)
+      expect(validator.next_validators).length.to.be.gte(0)
+      expect(validator.current_fishermen).length.to.be.gte(0)
+      expect(validator.next_fishermen).length.to.be.gte(0)
+      expect(validator.current_proposals).length.to.be.gte(0)
+    })
+
+    it('should get details and the state of validation on the blockchain with nullable array', async () => {
+      const validator = await provider.getValidatorStatus([null])
+      expect(validator).to.exist
+      expect(validator.current_validators).length.to.be.gte(0)
+      expect(validator.next_validators).length.to.be.gte(0)
+      expect(validator.current_fishermen).length.to.be.gte(0)
+      expect(validator.next_fishermen).length.to.be.gte(0)
+      expect(validator.current_proposals).length.to.be.gte(0)
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getValidatorStatus([])).to.be.rejectedWith(Error)
+    })
+  })
+
   describe('getNetworkInfo', () => {
     it('should get network information', async () => {
       const network = await provider.getNetworkInfo()

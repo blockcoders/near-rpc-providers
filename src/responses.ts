@@ -203,3 +203,36 @@ export interface GetNetworkInfoResponse {
   ]
   id: string
 }
+
+export interface GetAccessKeyListResponse {
+  keys: [
+    {
+      public_key: string
+      access_key: {
+        nonce: number
+        permission: {
+          FunctionCall: {
+            allowance: string
+            receiver_id: string
+            method_names: string[]
+          }
+        }
+      }
+    },
+  ]
+  block_height: number
+  block_hash: string
+}
+
+export interface GetAccessKeyResponse {
+  nonce: number
+  permission: {
+    FunctionCall: {
+      allowance: string
+      receiver_id: string
+      method_names: string[]
+    }
+  }
+  block_height: number
+  block_hash: string
+}

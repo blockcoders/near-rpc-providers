@@ -36,7 +36,7 @@ describe('NearRpcProvider', () => {
       expect(balance).to.be.instanceOf(BigNumber)
     })
 
-    it('should throw an error if params are not provided', () => {
+    it('should throw an error if params are not provided', async () => {
       expect(provider.getBalance('')).to.be.rejectedWith(Error)
     })
   })
@@ -58,7 +58,7 @@ describe('NearRpcProvider', () => {
       expect(gasPrice.gt(BigNumber.from(0))).to.be.true
     })
 
-    it('should throw an error if there is something wrong', () => {
+    it('should throw an error if there is something wrong', async () => {
       expect(provider.getGasPrice()).to.be.rejectedWith(Error)
     })
   })
@@ -72,16 +72,16 @@ describe('NearRpcProvider', () => {
       expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
     })
 
-    // Uncomment when we are able to query archival nodes
-    // it('should send a transaction and be able to wait', async () => {
-    //   const tx = await provider.sendTransaction(
-    //     'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
-    //   )
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should send a transaction and be able to wait', async () => {
+      const tx = await provider.sendTransaction(
+        'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
+      )
 
-    //   expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
-    //   const receipt = await tx.wait()
-    //   console.log(receipt)
-    // })
+      expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
+      const receipt = await tx.wait()
+      console.log(receipt)
+    })
   })
 
   describe('getCode', () => {
@@ -102,7 +102,7 @@ describe('NearRpcProvider', () => {
       expect(code).to.be.exist
     })
 
-    it('should throw an error if params are not provided', () => {
+    it('should throw an error if params are not provided', async () => {
       expect(provider.getCode('', '')).to.be.rejectedWith(Error)
     })
   })
@@ -186,7 +186,8 @@ describe('NearRpcProvider', () => {
       expect(block).to.not.be.undefined
     })
 
-    it('should get the block with chunk by block id', async () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get the block with chunk by block id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -218,8 +219,9 @@ describe('NearRpcProvider', () => {
     })
   })
 
-  describe('getChunkDetails', async () => {
-    it('should get chunk details by chunk id', async () => {
+  describe('getChunkDetails', () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get chunk details by chunk id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -230,7 +232,8 @@ describe('NearRpcProvider', () => {
       expect(chunk).to.not.be.undefined
     })
 
-    it('should get chunk details by block and shard id', async () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get chunk details by block and shard id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -345,6 +348,83 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', () => {
       expect(provider.getValidatorStatus([])).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getNetworkInfo', () => {
+    it('should get network information', async () => {
+      const network = await provider.getNetworkInfo()
+      expect(network).to.be.exist
+      expect(network.active_peers).length.to.be.gt(0)
+      expect(network.known_producers).length.to.be.gt(0)
+    })
+
+    it('should throw an error if something went wrong with the node', async () => {
+      expect(provider.getNetworkInfo()).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getAccessKeyList', () => {
+    it('should get the access key list by finality', async () => {
+      const accessKeyList = await provider.getAccessKeyList('blockcoders.testnet', 'latest')
+      expect(accessKeyList).to.be.exist
+      expect(accessKeyList.keys).length.to.be.greaterThan(0)
+      expect(accessKeyList.keys[0].access_key).to.exist
+      expect(accessKeyList.keys[0].access_key.nonce).to.be.greaterThanOrEqual(0)
+      expect(accessKeyList.keys[0].public_key).to.be.exist
+    })
+
+    it('should get the access key list by block height', async () => {
+      const status = await provider.status()
+      const accessKeyList = await provider.getAccessKeyList('blockcoders.testnet', status.sync_info.latest_block_height)
+      expect(accessKeyList).to.not.be.undefined
+      expect(accessKeyList.keys).length.to.be.greaterThan(0)
+      expect(accessKeyList.keys[0].access_key).to.exist
+      expect(accessKeyList.keys[0].access_key.nonce).to.be.greaterThanOrEqual(0)
+      expect(accessKeyList.keys[0].public_key).to.be.exist
+    })
+
+    it('should get the access key list by block hash', async () => {
+      const status = await provider.status()
+      const accessKeyList = await provider.getAccessKeyList('blockcoders.testnet', status.sync_info.latest_block_hash)
+      expect(accessKeyList).to.not.be.undefined
+      expect(accessKeyList.keys).length.to.be.greaterThan(0)
+      expect(accessKeyList.keys[0].access_key).to.exist
+      expect(accessKeyList.keys[0].access_key.nonce).to.be.greaterThanOrEqual(0)
+      expect(accessKeyList.keys[0].public_key).to.be.exist
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getAccessKeyList('', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getAccessKey', () => {
+    // TODO: remove skip when we are able to query archival nodes
+    it.skip('should get the access key by block id', async () => {
+      const accessKey = await provider.getAccessKey(
+        'client.chainlink.testnet',
+        'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
+        75866664,
+      )
+      expect(accessKey).to.not.be.undefined
+    })
+
+    it('should get the access key by finality', async () => {
+      const accessKey = await provider.getAccessKey(
+        'client.chainlink.testnet',
+        'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
+        'latest',
+      )
+
+      expect(accessKey).to.exist
+      expect(accessKey.block_hash).to.be.string
+      expect(accessKey.block_height).to.be.greaterThan(0)
+      expect(accessKey.nonce).to.be.greaterThan(0)
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.getAccessKey('', '', '')).to.be.rejectedWith(Error)
     })
   })
 

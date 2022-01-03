@@ -226,5 +226,59 @@ export interface GetValidatorStatusResponse {
   prev_epoch_kickout: any[]
   epoch_start_height: number
   epoch_height: number
+}
+
+export interface GetNetworkInfoResponse {
+  active_peers: [
+    {
+      id: string
+      addr: string
+      account_id: null
+    },
+  ]
+  num_active_peers: number
+  peer_max_count: number
+  sent_bytes_per_sec: number
+  received_bytes_per_sec: number
+  known_producers: [
+    {
+      account_id: string
+      addr: null
+      peer_id: string
+    },
+  ]
   id: string
+}
+
+export interface GetAccessKeyListResponse {
+  keys: [
+    {
+      public_key: string
+      access_key: {
+        nonce: number
+        permission: {
+          FunctionCall: {
+            allowance: string
+            receiver_id: string
+            method_names: string[]
+          }
+        }
+      }
+    },
+  ]
+  block_height: number
+  block_hash: string
+}
+
+export interface GetAccessKeyResponse {
+  nonce: number
+  permission: {
+    FunctionCall: {
+      allowance: string
+      receiver_id: string
+      method_names: string[]
+    }
+  }
+  block_height: number
+  block_hash: string
 }

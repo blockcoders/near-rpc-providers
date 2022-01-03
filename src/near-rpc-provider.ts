@@ -34,6 +34,7 @@ import {
   NearBlockWithChunk,
   NearChunkDetailsResponse,
   GetStateResponse,
+  GetNetworkInfoResponse,
   GetAccessKeyListResponse,
   GetAccessKeyResponse,
 } from './responses'
@@ -376,6 +377,17 @@ export class NearRpcProvider extends JsonRpcProvider {
         method: 'getContractState',
         params: getStateParams,
         error,
+      })
+    }
+  }
+
+  async getNetworkInfo(): Promise<GetNetworkInfoResponse> {
+    try {
+      const networkResponse = await this.send<GetNetworkInfoResponse>('network_info', {})
+      return networkResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'getNetworkInfo',
       })
     }
   }

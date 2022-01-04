@@ -437,7 +437,7 @@ describe('NearRpcProvider', () => {
       expect(defaultProvider).to.be.instanceof(FallbackProvider)
     })
 
-    it('should throw an error if network is not valid', () => {
+    it('should throw an error if the network is not valid', () => {
       try {
         getDefaultProvider('')
       } catch (error) {

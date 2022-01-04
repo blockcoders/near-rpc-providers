@@ -1,7 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { FallbackProvider } from '@ethersproject/providers'
 import { expect, use } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import sinon from 'sinon'
+import { getDefaultProvider } from './default-provider'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
 
@@ -425,6 +427,23 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', () => {
       expect(provider.getAccessKey('', '', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('getDefaultProvider', () => {
+    it('should get the default provider', () => {
+      const defaultProvider = getDefaultProvider('testnet')
+      expect(defaultProvider).to.exist
+      expect(defaultProvider).to.be.instanceof(FallbackProvider)
+    })
+
+    it('should throw an error if network is not valid', () => {
+      try {
+        getDefaultProvider('')
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.instanceof(Error)
+      }
     })
   })
 

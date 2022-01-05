@@ -432,7 +432,7 @@ describe('NearRpcProvider', () => {
 
   describe('getDefaultProvider', () => {
     it('should get the default provider', () => {
-      const defaultProvider = getDefaultProvider('testnet')
+      const defaultProvider = getDefaultProvider(NEAR_TESTNET_NETWORK)
       expect(defaultProvider).to.exist
       expect(defaultProvider).to.be.instanceof(FallbackProvider)
     })

@@ -450,19 +450,6 @@ describe('NearRpcProvider', () => {
       expect(fallbackProvider.getBlockNumber()).to.be.rejectedWith(Error)
     })
 
-    it('should work getBalance method of near provider through the fallback provider', async () => {
-      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
-      const getBalance = await fallbackProvider.getBalance('blockcoders.testnet')
-      expect(getBalance).to.exist
-      expect(getBalance).to.not.be.null
-      expect(getBalance).to.not.be.undefined
-    })
-
-    it('should throw an error if getBalance are not well-instanciated in fallback provider', () => {
-      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
-      expect(fallbackProvider.getBalance('')).to.be.rejectedWith(Error)
-    })
-
     it('should work getGasPrice method of near provider through the fallback provider', async () => {
       const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
       const getGasPrice = await fallbackProvider.getGasPrice()

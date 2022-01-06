@@ -5,16 +5,17 @@ interface Params {
   finality?: Finality
   block_id?: BlockTag
 }
+
+interface CommonParams extends Params {
+  account_id: string
+}
 export interface GetBalanceParams {
   request_type: 'view_account'
   finality: Finality
   account_id: string
 }
-export interface GetCodeParams extends Params {
+export interface GetCodeParams extends CommonParams {
   request_type: 'view_code'
-  finality?: Finality
-  block_id?: BlockTag
-  account_id: string
 }
 
 export type GetBlockDetailsParams = Params
@@ -25,21 +26,22 @@ export interface GetChunkDetailsParams {
   shard_id?: number
 }
 
-export interface GetStateParams extends Params {
+export interface GetStateParams extends CommonParams {
   request_type: 'view_state'
-  account_id: string
   prefix_base64: string
 }
 
-export interface GetAccessKeyListParams {
+export interface GetAccessKeyListParams extends CommonParams {
   request_type: 'view_access_key_list'
-  finality?: Finality
-  block_id?: BlockTag
-  account_id: string
 }
 
-export interface GetAccessKeyParams extends Params {
+export interface GetAccessKeyParams extends CommonParams {
   request_type: 'view_access_key'
-  account_id: string
   public_key: string
+}
+
+export interface GetContractCall extends CommonParams {
+  request_type: 'call_function'
+  method_name: string
+  args_base64: string
 }

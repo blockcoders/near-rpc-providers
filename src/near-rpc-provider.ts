@@ -21,6 +21,7 @@ import {
   GetBlockDetailsParams,
   GetAccessKeyListParams,
   GetAccessKeyParams,
+  GetContractCall,
 } from './parameters'
 import {
   BlockRpcResponse,
@@ -38,6 +39,7 @@ import {
   GetNetworkInfoResponse,
   GetAccessKeyListResponse,
   GetAccessKeyResponse,
+  GetContractCallResponse,
 } from './responses'
 
 export class RpcError extends Error {
@@ -445,6 +447,31 @@ export class NearRpcProvider extends JsonRpcProvider {
       return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
         method: 'getAccessKey',
         params: getAccessKeyParams,
+        error,
+      })
+    }
+  }
+
+  async contractCall(
+    addressOrName: string | Promise<string>,
+    blockTag: BlockTag | Promise<BlockTag>,
+    methodName: string,
+    argsBase64: string,
+  ) {
+    let contractCallParams: GetContractCall = {
+      request_type: 'call_function',
+      account_id: await addressOrName,
+      method_name: methodName,
+      args_base64: argsBase64,
+    }
+    try {
+      contractCallParams = this._setParamsFinalityOrBlockId(contractCallParams, await blockTag)
+      const contractResponse = await this.send<GetContractCallResponse>('query', contractCallParams)
+      return contractResponse
+    } catch (error) {
+      return logger.throwError('bad result from backend', Logger.errors.SERVER_ERROR, {
+        method: 'contractCall',
+        params: contractCallParams,
         error,
       })
     }

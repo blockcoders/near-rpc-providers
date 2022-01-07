@@ -449,33 +449,26 @@ describe('NearRpcProvider', () => {
 
   describe('contractCall', () => {
     it('should call a contract function', async () => {
-      const contractResponse = await provider.contractCall(
-        'client.chainlink.testnet',
-        'latest',
-        'get_token_price',
-        'e30=',
-      )
+      const contractResponse = await provider.contractCall('guest-book.testnet', 'latest', 'getMessages', 'e30=')
       expect(contractResponse).to.exist
       expect(contractResponse).to.not.be.null
       expect(contractResponse).to.not.be.undefined
     })
 
     it('should throw an error if addressOrName is not provided', () => {
-      expect(provider.contractCall('', 'latest', 'get_token_price', 'e30=')).to.be.rejectedWith(Error)
+      expect(provider.contractCall('', 'latest', 'getMessages', 'e30=')).to.be.rejectedWith(Error)
     })
 
     it('should throw an error if blockTag is not provided', () => {
-      expect(provider.contractCall('client.chainlink.testnet', '', 'get_token_price', 'e30=')).to.be.rejectedWith(Error)
+      expect(provider.contractCall('guest-book.testnet', '', 'getMessages', 'e30=')).to.be.rejectedWith(Error)
     })
 
     it('should throw an error if methodName is not provided', () => {
-      expect(provider.contractCall('client.chainlink.testnet', 'latest', '', 'e30=')).to.be.rejectedWith(Error)
+      expect(provider.contractCall('guest-book.testnet', 'latest', '', 'e30=')).to.be.rejectedWith(Error)
     })
 
     it('should throw an error if argsBase64 is not provided', () => {
-      expect(provider.contractCall('client.chainlink.testnet', 'latest', 'get_token_price', '')).to.be.rejectedWith(
-        Error,
-      )
+      expect(provider.contractCall('guest-book.testnet', 'latest', 'getMessages', '')).to.be.rejectedWith(Error)
     })
 
     it('should throw an error if params are not provided', () => {

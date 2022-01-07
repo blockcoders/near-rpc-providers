@@ -282,3 +282,11 @@ export interface GetAccessKeyResponse {
   block_height: number
   block_hash: string
 }
+
+export interface GetContractCallResponse {
+  result: number[]
+  logs: any[]
+  block_height: number
+  block_hash: string
+  id: string
+}

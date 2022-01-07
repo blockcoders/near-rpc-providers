@@ -2,10 +2,12 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { FallbackProvider } from '@ethersproject/providers'
 import { expect, use } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
+import { Signature, SignedTransaction } from 'near-api-js/lib/transaction'
 import sinon from 'sinon'
 import { getDefaultProvider } from './default-provider'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
+import { getSignedTransaction } from './tests/utils'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
@@ -427,6 +429,26 @@ describe('NearRpcProvider', () => {
 
     it('should throw an error if params are not provided', () => {
       expect(provider.getAccessKey('', '', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('signTransaction', () => {
+    it('should sign the transaction', async () => {
+      const [hash, signedTransaction] = await getSignedTransaction(provider)
+
+      expect(hash).to.be.instanceOf(Uint8Array)
+      expect(signedTransaction).to.be.instanceOf(SignedTransaction)
+      expect(signedTransaction.transaction.signerId).to.equal('blockcoders-tests.testnet')
+      expect(signedTransaction.transaction.receiverId).to.equal('blockcoders.testnet')
+      expect(signedTransaction.signature).to.be.instanceOf(Signature)
+    })
+
+    it('should be able to execute the signed transaction', async () => {
+      const [hash, signedTransaction] = await getSignedTransaction(provider)
+      const txString = Buffer.from(signedTransaction.encode()).toString('base64')
+      const response = await provider.sendTransaction(txString)
+      expect(hash).to.be.string
+      expect(response.hash).to.be.string
     })
   })
 

@@ -10,7 +10,8 @@ import {
   TransactionResponse,
 } from '@ethersproject/providers'
 import { fetchJson } from '@ethersproject/web'
-import { SignedTransaction } from 'near-api-js/lib/transaction'
+import { InMemorySigner, KeyPair } from 'near-api-js'
+import { createTransaction, SignedTransaction, signTransaction, Transaction } from 'near-api-js/lib/transaction'
 import { logger } from './logger'
 import { getNetwork } from './networks'
 import {
@@ -223,6 +224,26 @@ export class NearRpcProvider extends JsonRpcProvider {
         params: blockHashOrBlockTag,
       },
     )
+  }
+
+  createTransaction({
+    signerId,
+    publicKey,
+    receiverId,
+    nonce,
+    actions,
+    blockHash,
+  }: Omit<Transaction, 'encode' | 'decode'>) {
+    const transaction = createTransaction(signerId, publicKey, receiverId, nonce, actions, blockHash)
+    return transaction
+  }
+
+  async signTransaction(encodedKey: string, transaction: Transaction): Promise<[Uint8Array, SignedTransaction]> {
+    const network = await this.getNetwork()
+    const keyPair = KeyPair.fromString(encodedKey)
+    const signer = await InMemorySigner.fromKeyPair(network.name, transaction.signerId, keyPair)
+
+    return signTransaction(transaction, signer, transaction.signerId, network.name)
   }
 
   async sendTransaction(signedTransaction: string | Promise<string>): Promise<TransactionResponse> {

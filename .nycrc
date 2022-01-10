@@ -13,7 +13,9 @@
     "node_modules/**",
     "**/*.d.ts",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "src/tests/utils.ts",
+    "src/index.ts"
   ],
   "sourceMap": true,
   "reporter": [

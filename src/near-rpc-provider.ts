@@ -273,8 +273,8 @@ export class NearRpcProvider extends JsonRpcProvider {
           to: tx.transaction.receiverId,
           transactionHash: response,
           confirmations: txStatus.receipts_outcome.length,
-          gasUsed: txStatus.transaction_outcome.outcome.gas_burnt,
-          status: txStatus.status.SuccessValue,
+          gasUsed: BigNumber.from(txStatus.transaction_outcome.outcome.gas_burnt),
+          status: parseInt(txStatus.status.SuccessValue, 10),
         } as unknown as TransactionReceipt
       },
     }

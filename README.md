@@ -50,7 +50,7 @@ const nearRpcProvider = new NearRpcProvider('near')
 
 ## Methods
 
-### Block number
+### Block Number
 
 Returns the block number of the latest block
 
@@ -58,20 +58,149 @@ Returns the block number of the latest block
 const blockNumber = await nearRpcProvider.getBlockNumber()
 ```
 
-### Get an account balance
+### Call a Contract Function
+
+Allows you to call a contract method as a view function.
+
+```typescript
+const contractResponse = await nearRpcProvider.contractCall(
+  'example.testnet', 'latest', 'getMessages', 'e30='
+)
+```
+
+### Get an Account Balance
 
 Returns a BigNumber representing the balance on the provided account
 
 ```typescript
-const balance = await nearRpcProvider.getBalance('blockcoders.testnet')
+const balance = await nearRpcProvider.getBalance('example.testnet')
 ```
 
-### Get block
+### Get an Access Key
 
-Returns a [block](https://docs.ethers.io/v5/api/providers/types/#providers-Block) by `block_id` or `block_hash`
+Returns information about a single access key for given account.
 
 ```typescript
-const block = await nearRpcProvider.getBlock('7nsuuitwS7xcdGnD9JgrE22cRB2vf2VS4yh1N9S71F4d')
+const accessKey = await nearRpcProvider.getAccessKey(
+  'example.testnet',
+  'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
+  75866664,
+)
+```
+
+### Get an Access Key List
+
+Returns all access keys for a given account. You can querying it by `finality`:
+
+```typescript
+const accessKeyList = await nearRpcProvider.getAccessKeyList('example.testnet', 'latest')
+```
+
+By `block_height`:
+
+```typescript
+const accessKeyList = await nearRpcProvider.getAccessKeyList('example.testnet', 27912554)
+```
+
+Or by `block_hash`:
+
+```typescript
+const accessKeyList = await nearRpcProvider.getAccessKeyList(
+  'example.testnet', '3Xz2wM9rigMXzA2c5vgCP8wTgFBaePucgUmVYPkMqhRL'
+)
+```
+
+### Get Block
+
+[DEPRECATED] Throws the following erorr:
+
+```typescript
+Error: getBlock function is not supported in Near nearRpcProvider. Please use getBlockWithChunk function
+```
+
+### Get Block With Chunk
+
+Returns block for given `finality`:
+
+```typescript
+const block = await nearRpcProvider.getBlockWithChunk({
+  finality: 'final' })
+```
+
+Or `block_id`:
+
+```typescript
+const block = await nearRpcProvider.getBlockWithChunk({ 
+  block_id: '81k9ked5s34zh13EjJt26mxw5npa485SY4UNoPi6yYLo',
+})
+```
+
+### Get Chunk Details
+
+Returns details of a specific chunk. You can get the chunk details by `chunk_id`:
+
+```typescript
+const chunk = await nearRpcProvider.getChunkDetails({
+  chunk_id: 'EBM2qg5cGr47EjMPtH88uvmXHDHqmWPzKaQadbWhdw22',
+})
+```
+
+Or by `block_id` and `shard_id`:
+
+```typescript
+const chunk = await nearRpcProvider.getChunkDetails({
+  block_id: 58934027, 
+  shard_id: 0,
+})
+```
+
+### Get Contract Code
+
+Return the code encoded in base64. You can get the contract code by `block_hash`:
+
+```typescript
+const code = await nearRpcProvider.getCode(
+  'example.testnet', '4fzLVR8cfyRDi5hDstYQy73eoxMJdWsH72KM6N9TmYmq'
+)
+```
+
+Or by `block_tag`:
+
+```typescript
+const code = await nearRpcProvider.getCode('example.testnet', 'latest')
+```
+
+### Get Contract State
+
+Returns the state of a contract based on the key prefix (base64 encoded). You can get it by `block_tag`:
+
+```typescript
+const state = await nearRpcProvider.getContractState('example.testnet', 'latest')
+```
+
+By `block_height`:
+
+```typescript
+const state = await nearRpcProvider.getContractState('example.testnet', 58934027)
+```
+
+Or `block_hash`: 
+
+```typescript
+const state = await nearRpcProvider.getContractState(
+  'example.testnet', '3Xz2wM9rigMXzA2c5vgCP8wTgFBaePucgUmVYPkMqhRL'
+)
+```
+
+### Get Default Provider
+
+Returns the default provider.
+
+```typescript
+const defaultProvider = getDefaultProvider({
+  name: 'neartestnet',
+  chainId: parseInt(Buffer.from('testnet').toString('hex'), 16),
+})
 ```
 
 ### Get Gas Price
@@ -80,6 +209,36 @@ Returns a BigNumber representing the current `gasPrice`
 
 ```typescript
 const gasPrice = await nearRpcProvider.getGasPrice()
+```
+
+### Get Network Info
+
+Returns the current state of node network connections.
+
+```typescript
+const network = await nearRpcProvider.getNetworkInfo()
+```
+
+### Get Validator Status
+
+Returns details and the state of validation on the blockchain. It must be used with an array of `block_hash`:
+
+```typescript
+const validator = await nearRpcProvider.getValidatorStatus(
+  ['FiG2nMjjue3YdgYAyM3ZqWXSaG6RJj5Gk7hvY8vrEoGw']
+)
+```
+
+`block_height`:
+
+```typescript
+const validator = await nearRpcProvider.getValidatorStatus([17791098])
+```
+
+Or `null`:
+
+```typescript
+const validator = await nearRpcProvider.getValidatorStatus([null])
 ```
 
 ### Send Transaction
@@ -102,6 +261,21 @@ See https://docs.near.org/docs/api/rpc for all available options
 
 ```typescript
 const blockResponse = await this.send<BlockRpcResponse>('block', { block_id: params.block_id })
+```
+
+### Sign a transaction
+
+Return a transaction signed.
+
+```typescript
+const [hash, signedTransaction] = await getSignedTransaction(nearRpcProvider)
+```
+
+After to get the signed transaction, you'll be able to execute that signed transaction:
+
+```typescript
+const txString = Buffer.from(signedTransaction.encode()).toString('base64')
+const response = await nearRpcProvider.sendTransaction(txString)
 ```
 
 ## Running a NEAR network locally

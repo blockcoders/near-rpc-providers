@@ -112,11 +112,7 @@ const accessKeyList = await nearRpcProvider.getAccessKeyList(
 
 ### Get Block
 
-[DEPRECATED] Throws the following erorr:
-
-```typescript
-Error: getBlock function is not supported in Near nearRpcProvider. Please use getBlockWithChunk function
-```
+Use Get Block With Chunk instead of this method.
 
 ### Get Block With Chunk
 

@@ -23,5 +23,6 @@ export async function getSignedTransaction(provider: NearRpcProvider) {
     signerId: 'blockcoders-tests.testnet',
   })
   const tx = await provider.signTransaction(encodedKey, transaction)
+
   return tx
 }

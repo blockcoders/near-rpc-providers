@@ -469,6 +469,79 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('contractCall', () => {
+    it('should call a contract function', async () => {
+      const contractResponse = await provider.contractCall('guest-book.testnet', 'latest', 'getMessages', 'e30=')
+      expect(contractResponse).to.exist
+      expect(contractResponse).to.not.be.null
+      expect(contractResponse).to.not.be.undefined
+    })
+
+    it('should throw an error if addressOrName is not provided', () => {
+      expect(provider.contractCall('', 'latest', 'getMessages', 'e30=')).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if blockTag is not provided', () => {
+      expect(provider.contractCall('guest-book.testnet', '', 'getMessages', 'e30=')).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if methodName is not provided', () => {
+      expect(provider.contractCall('guest-book.testnet', 'latest', '', 'e30=')).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if argsBase64 is not provided', () => {
+      expect(provider.contractCall('guest-book.testnet', 'latest', 'getMessages', '')).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if params are not provided', () => {
+      expect(provider.contractCall('', '', '', '')).to.be.rejectedWith(Error)
+    })
+  })
+
+  describe('providerCompatibilityCheck', () => {
+    it('should work through the near rpc provider', () => {
+      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
+      expect(fallbackProvider).to.exist
+      expect(fallbackProvider).to.not.be.null
+      expect(fallbackProvider).to.not.be.undefined
+    })
+
+    it('should work getBlockNumber method of near provider through the fallback provider', async () => {
+      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
+      const getBlockNumber = await fallbackProvider.getBlockNumber()
+      expect(getBlockNumber).to.exist
+      expect(getBlockNumber).to.not.be.null
+      expect(getBlockNumber).to.not.be.undefined
+    })
+
+    it('should throw an error if getBlockNumber are not well-instanciated in fallback provider', () => {
+      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
+      expect(fallbackProvider.getBlockNumber()).to.be.rejectedWith(Error)
+    })
+
+    it('should work getGasPrice method of near provider through the fallback provider', async () => {
+      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
+      const getGasPrice = await fallbackProvider.getGasPrice()
+      expect(getGasPrice).to.exist
+      expect(getGasPrice).to.not.be.null
+      expect(getGasPrice).to.not.be.undefined
+    })
+
+    it('should throw an error if getGasPrice are not well-instanciated in fallback provider', () => {
+      const fallbackProvider = new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
+      expect(fallbackProvider.getGasPrice()).to.be.rejectedWith(Error)
+    })
+
+    it('should throw an error if the near rpc provider is not well-instanciated through fallback provider', () => {
+      try {
+        new FallbackProvider([new NearRpcProvider(NEAR_TESTNET_NETWORK)])
+      } catch (error) {
+        expect(error).to.exist
+        expect(error).to.be.instanceof(Error)
+      }
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
       const type = 'METHOD_NOT_FOUND'

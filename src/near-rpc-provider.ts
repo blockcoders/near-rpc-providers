@@ -23,6 +23,7 @@ import {
   GetAccessKeyListParams,
   GetAccessKeyParams,
   GetContractCall,
+  Request,
 } from './parameters'
 import {
   BlockRpcResponse,
@@ -42,18 +43,24 @@ import {
   GetAccessKeyResponse,
   GetContractCallResponse,
 } from './responses'
+import { errorIsHandlerError } from './utils'
 
 export class RpcError extends Error {
-  public readonly type: string
-  public readonly code: number
-  public readonly data: string
+  public readonly type?: string
+  public readonly code?: number
+  public readonly data?: string
+  public readonly cause?: {
+    name: string
+    info: Record<string, any>
+  }
 
-  constructor(message: string, type: string, code: number, data: string) {
-    super(message)
+  constructor(error: RpcResponse['error']) {
+    super(error?.message)
     this.name = RpcError.name
-    this.type = type
-    this.code = code
-    this.data = data
+    this.type = error?.name
+    this.code = error?.code
+    this.data = error?.data
+    this.cause = error?.cause
 
     Error.captureStackTrace(this, this.constructor)
   }
@@ -61,19 +68,23 @@ export class RpcError extends Error {
 
 function getResult(payload: RpcResponse): any {
   if (payload.error) {
-    throw new RpcError(payload.error.message, payload.error.name, payload.error.code, payload.error.data)
+    throw new RpcError(payload.error)
   }
 
   return payload.result
 }
 
 export class NearRpcProvider extends JsonRpcProvider {
+  private _archivalUrl: string
+
   constructor(_network?: Networkish) {
     const network = getNetwork(_network)
     const baseUrl = getStatic<(network?: Network | null) => string>(new.target, 'getBaseUrl')(network)
+    const archivalUrl = getStatic<(network?: Network | null) => string>(new.target, 'getArchivalUrl')(network)
 
     super(baseUrl, network)
 
+    this._archivalUrl = archivalUrl
     this._nextId = 52
   }
 
@@ -92,6 +103,17 @@ export class NearRpcProvider extends JsonRpcProvider {
     }
 
     return logger.throwArgumentError('unsupported network', 'network', network)
+  }
+
+  static getArchivalUrl(network?: Network | null): string {
+    switch (network ? network.name : 'invalid') {
+      case 'near':
+        return 'https://archival-rpc.mainnet.near.org'
+      case 'neartestnet':
+        return 'https://archival-rpc.testnet.near.org'
+    }
+
+    return logger.throwArgumentError('network has no archival url', 'network', network)
   }
 
   getNextId(): number {
@@ -182,8 +204,40 @@ export class NearRpcProvider extends JsonRpcProvider {
 
       return result as T
     } catch (err) {
+      const response = err as RpcResponse
+
       this.emit('debug', {
         action: 'response',
+        error: err,
+        request: request,
+        provider: this,
+      })
+
+      if (errorIsHandlerError(response.error)) {
+        return this.sendToArchivalNode<T>(request)
+      }
+
+      throw err
+    }
+  }
+
+  private async sendToArchivalNode<T>(request: Request): Promise<T> {
+    try {
+      console.log('sending to archival')
+
+      const result = await fetchJson(this.connection, JSON.stringify(request), getResult)
+
+      this.emit('debug', {
+        action: 'response_archival',
+        request: request,
+        response: result,
+        provider: this,
+      })
+
+      return result as T
+    } catch (err) {
+      this.emit('debug', {
+        action: 'response_archival',
         error: err,
         request: request,
         provider: this,
@@ -281,7 +335,6 @@ export class NearRpcProvider extends JsonRpcProvider {
   }
 
   private async _internalGetTransactionStatus(txHash: string, accountId: string) {
-    // TODO: Query the archival node as well.
     const result = await this.send<GetTransactionStatusRpcResponse>('tx', [txHash, accountId])
     return result
   }

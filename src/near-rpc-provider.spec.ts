@@ -75,17 +75,6 @@ describe('NearRpcProvider', () => {
 
       expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
     })
-
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should send a transaction and be able to wait', async () => {
-      const tx = await provider.sendTransaction(
-        'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
-      )
-
-      expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
-      const receipt = await tx.wait()
-      console.log(receipt)
-    })
   })
 
   describe('getCode', () => {
@@ -190,8 +179,7 @@ describe('NearRpcProvider', () => {
       expect(block).to.not.be.undefined
     })
 
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get the block with chunk by block id', async () => {
+    it('should get the block with chunk by block id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -224,8 +212,7 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getChunkDetails', () => {
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get chunk details by chunk id', async () => {
+    it('should get chunk details by chunk id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -236,8 +223,7 @@ describe('NearRpcProvider', () => {
       expect(chunk).to.not.be.undefined
     })
 
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get chunk details by block and shard id', async () => {
+    it('should get chunk details by block and shard id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -404,12 +390,13 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getAccessKey', () => {
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get the access key by block id', async () => {
+    it('should get the access key by block id', async () => {
+      const status = await provider.status()
+      status.sync_info.latest_block_height
       const accessKey = await provider.getAccessKey(
         'client.chainlink.testnet',
         'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
-        75866664,
+        status.sync_info.latest_block_height,
       )
       expect(accessKey).to.not.be.undefined
     })
@@ -544,16 +531,24 @@ describe('NearRpcProvider', () => {
 
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
-      const type = 'METHOD_NOT_FOUND'
-      const code = 32601
-      const data = 'invalid method'
-      const error = new RpcError('Method not found', type, code, data)
+      const payloadError = {
+        name: 'METHOD_NOT_FOUND',
+        code: 32601,
+        message: 'Method not found',
+        data: 'invalid method',
+        cause: {
+          name: 'UNKNOWN_ERROR',
+          info: {},
+        },
+      }
+      const error = new RpcError(payloadError)
 
       expect(error).to.be.an.instanceof(Error)
       expect(error.name).to.be.eq(RpcError.name)
-      expect(error.type).to.be.eq(type)
-      expect(error.code).to.be.eq(code)
-      expect(error.data).to.be.eq(data)
+      expect(error.type).to.be.eq(payloadError.name)
+      expect(error.code).to.be.eq(payloadError.code)
+      expect(error.data).to.be.eq(payloadError.data)
+      expect(error.cause).to.be.eq(payloadError.cause)
     })
   })
 })

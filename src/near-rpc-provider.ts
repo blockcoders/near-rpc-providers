@@ -302,6 +302,15 @@ export class NearRpcProvider extends JsonRpcProvider {
     return signTransaction(transaction, signer, transaction.signerId, network.name)
   }
 
+  async signMessage(encodedKey: string, message: string, accountId: string) {
+    const network = await this.getNetwork()
+    const keyPair = KeyPair.fromString(encodedKey)
+    const signer = await InMemorySigner.fromKeyPair(network.name, accountId, keyPair)
+
+    const buffer = Buffer.from(message)
+    return signer.signMessage(buffer, accountId, network.name)
+  }
+
   async sendTransaction(signedTransaction: string | Promise<string>): Promise<TransactionResponse> {
     const network = await this.getNetwork()
     const signed = await signedTransaction

@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import { getDefaultProvider } from './default-provider'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
-import { getSignedTransaction } from './tests/utils'
+import { getPublicKey, getSignedTransaction, TEST_ENCODED_KEY } from './tests/utils'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
@@ -428,7 +428,7 @@ describe('NearRpcProvider', () => {
       expect(signedTransaction.transaction.signerId).to.equal('blockcoders-tests.testnet')
       expect(signedTransaction.transaction.receiverId).to.equal('blockcoders.testnet')
       expect(signedTransaction.signature).to.be.instanceOf(Signature)
-    })
+    }).timeout(5000)
 
     it('should be able to execute the signed transaction', async () => {
       const [hash, signedTransaction] = await getSignedTransaction(provider)
@@ -436,6 +436,15 @@ describe('NearRpcProvider', () => {
       const response = await provider.sendTransaction(txString)
       expect(hash).to.be.string
       expect(response.hash).to.be.string
+    })
+  })
+
+  describe('signMessage', () => {
+    it('should be able to sign a message', async () => {
+      const response = await provider.signMessage(TEST_ENCODED_KEY, 'test message', 'blockcoders-tests.testnet')
+      expect(response.signature).to.exist
+      expect(response.publicKey.toString()).to.eq(getPublicKey(TEST_ENCODED_KEY).toString())
+      return true
     })
   })
 

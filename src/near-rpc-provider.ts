@@ -225,7 +225,7 @@ export class NearRpcProvider extends JsonRpcProvider {
     try {
       console.log('sending to archival')
 
-      const result = await fetchJson(this.connection, JSON.stringify(request), getResult)
+      const result = await fetchJson(this._archivalUrl, JSON.stringify(request), getResult)
 
       this.emit('debug', {
         action: 'response_archival',

@@ -223,8 +223,6 @@ export class NearRpcProvider extends JsonRpcProvider {
 
   private async sendToArchivalNode<T>(request: Request): Promise<T> {
     try {
-      console.log('sending to archival')
-
       const result = await fetchJson(this._archivalUrl, JSON.stringify(request), getResult)
 
       this.emit('debug', {

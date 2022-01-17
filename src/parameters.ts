@@ -1,5 +1,12 @@
 import { BlockTag } from '@ethersproject/providers'
 
+export interface Request {
+  method: string
+  params: any[] | Record<string, any>
+  id: number
+  jsonrpc: string
+}
+
 export type Finality = 'final' | 'optimistic'
 interface Params {
   finality?: Finality

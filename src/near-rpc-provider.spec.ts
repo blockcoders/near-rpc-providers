@@ -7,7 +7,8 @@ import sinon from 'sinon'
 import { getDefaultProvider } from './default-provider'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
-import { getSignedTransaction } from './tests/utils'
+import { GetTransactionStatusRpcResponse } from './responses'
+import { getPublicKey, getSignedTransaction, TEST_ENCODED_KEY } from './tests/utils'
 
 describe('NearRpcProvider', () => {
   let provider: NearRpcProvider
@@ -74,17 +75,6 @@ describe('NearRpcProvider', () => {
       )
 
       expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
-    })
-
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should send a transaction and be able to wait', async () => {
-      const tx = await provider.sendTransaction(
-        'DgAAAHNlbmRlci50ZXN0bmV0AOrmAai64SZOv9e/naX4W15pJx0GAap35wTT1T/DwcbbDwAAAAAAAAAQAAAAcmVjZWl2ZXIudGVzdG5ldNMnL7URB1cxPOu3G8jTqlEwlcasagIbKlAJlF5ywVFLAQAAAAMAAACh7czOG8LTAAAAAAAAAGQcOG03xVSFQFjoagOb4NBBqWhERnnz45LY4+52JgZhm1iQKz7qAdPByrGFDQhQ2Mfga8RlbysuQ8D8LlA6bQE=',
-      )
-
-      expect(tx.hash).to.equal('6zgh2u9DqHHiXzdy9ouTP7oGky2T4nugqzqt9wJZwNFm')
-      const receipt = await tx.wait()
-      console.log(receipt)
     })
   })
 
@@ -190,8 +180,7 @@ describe('NearRpcProvider', () => {
       expect(block).to.not.be.undefined
     })
 
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get the block with chunk by block id', async () => {
+    it('should get the block with chunk by block id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -224,8 +213,7 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getChunkDetails', () => {
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get chunk details by chunk id', async () => {
+    it('should get chunk details by chunk id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -236,8 +224,7 @@ describe('NearRpcProvider', () => {
       expect(chunk).to.not.be.undefined
     })
 
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get chunk details by block and shard id', async () => {
+    it('should get chunk details by block and shard id', async () => {
       const latest = await provider.getBlockWithChunk({
         finality: 'final',
       })
@@ -404,12 +391,13 @@ describe('NearRpcProvider', () => {
   })
 
   describe('getAccessKey', () => {
-    // TODO: remove skip when we are able to query archival nodes
-    it.skip('should get the access key by block id', async () => {
+    it('should get the access key by block id', async () => {
+      const status = await provider.status()
+      status.sync_info.latest_block_height
       const accessKey = await provider.getAccessKey(
         'client.chainlink.testnet',
         'ed25519:H9k5eiU4xXS3M4z8HzKJSLaZdqGdGwBG49o7orNC4eZW',
-        75866664,
+        status.sync_info.latest_block_height,
       )
       expect(accessKey).to.not.be.undefined
     })
@@ -441,14 +429,28 @@ describe('NearRpcProvider', () => {
       expect(signedTransaction.transaction.signerId).to.equal('blockcoders-tests.testnet')
       expect(signedTransaction.transaction.receiverId).to.equal('blockcoders.testnet')
       expect(signedTransaction.signature).to.be.instanceOf(Signature)
-    })
+    }).timeout(5000)
 
-    it('should be able to execute the signed transaction', async () => {
+    it('should be able to execute and wait for the signed transaction', async () => {
       const [hash, signedTransaction] = await getSignedTransaction(provider)
       const txString = Buffer.from(signedTransaction.encode()).toString('base64')
       const response = await provider.sendTransaction(txString)
       expect(hash).to.be.string
       expect(response.hash).to.be.string
+      const receipt = await response.wait()
+
+      expect(receipt.blockHash).to.be.string
+      expect(receipt.from).to.equal('blockcoders-tests.testnet')
+      expect(receipt.to).to.equal('blockcoders.testnet')
+    }).timeout(15000)
+  })
+
+  describe('signMessage', () => {
+    it('should be able to sign a message', async () => {
+      const response = await provider.signMessage(TEST_ENCODED_KEY, 'test message', 'blockcoders-tests.testnet')
+      expect(response.signature).to.exist
+      expect(response.publicKey.toString()).to.eq(getPublicKey(TEST_ENCODED_KEY).toString())
+      return true
     })
   })
 
@@ -542,18 +544,38 @@ describe('NearRpcProvider', () => {
     })
   })
 
+  describe('send', () => {
+    it('should check on archival node if the error is a HandlerError', async () => {
+      // Old transaction, not on main node
+      // https://explorer.testnet.near.org/transactions/2KSf6ZEWk48C8YyZiKNd1NusSbMq8SAcUYKAfHhDLqX1
+      const txHash = '2KSf6ZEWk48C8YyZiKNd1NusSbMq8SAcUYKAfHhDLqX1'
+      const accountId = 'blockcoders-tests.testnet'
+      const result = await provider.send<GetTransactionStatusRpcResponse>('tx', [txHash, accountId])
+      expect(result.status.SuccessValue).to.exist
+      expect(result.transaction_outcome.block_hash).to.equal('9ZMa7VuTVEokA27Et3W8URCsNfQ1D3zQ1TUhDvAjwtmo')
+    })
+  })
+
   describe('RpcError', () => {
     it('should be an instance of Error', () => {
-      const type = 'METHOD_NOT_FOUND'
-      const code = 32601
-      const data = 'invalid method'
-      const error = new RpcError('Method not found', type, code, data)
+      const payloadError = {
+        name: 'METHOD_NOT_FOUND',
+        code: 32601,
+        message: 'Method not found',
+        data: 'invalid method',
+        cause: {
+          name: 'UNKNOWN_ERROR',
+          info: {},
+        },
+      }
+      const error = new RpcError(payloadError)
 
       expect(error).to.be.an.instanceof(Error)
       expect(error.name).to.be.eq(RpcError.name)
-      expect(error.type).to.be.eq(type)
-      expect(error.code).to.be.eq(code)
-      expect(error.data).to.be.eq(data)
+      expect(error.type).to.be.eq(payloadError.name)
+      expect(error.code).to.be.eq(payloadError.code)
+      expect(error.data).to.be.eq(payloadError.data)
+      expect(error.cause).to.be.eq(payloadError.cause)
     })
   })
 })

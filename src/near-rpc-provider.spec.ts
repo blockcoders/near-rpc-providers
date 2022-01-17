@@ -7,6 +7,7 @@ import sinon from 'sinon'
 import { getDefaultProvider } from './default-provider'
 import { NearRpcProvider, RpcError } from './near-rpc-provider'
 import { NEAR_TESTNET_NETWORK, NEAR_BETANET_NETWORK, NEAR_NETWORK } from './networks'
+import { GetTransactionStatusRpcResponse } from './responses'
 import { getPublicKey, getSignedTransaction, TEST_ENCODED_KEY } from './tests/utils'
 
 describe('NearRpcProvider', () => {
@@ -430,13 +431,18 @@ describe('NearRpcProvider', () => {
       expect(signedTransaction.signature).to.be.instanceOf(Signature)
     }).timeout(5000)
 
-    it('should be able to execute the signed transaction', async () => {
+    it('should be able to execute and wait for the signed transaction', async () => {
       const [hash, signedTransaction] = await getSignedTransaction(provider)
       const txString = Buffer.from(signedTransaction.encode()).toString('base64')
       const response = await provider.sendTransaction(txString)
       expect(hash).to.be.string
       expect(response.hash).to.be.string
-    })
+      const receipt = await response.wait()
+
+      expect(receipt.blockHash).to.be.string
+      expect(receipt.from).to.equal('blockcoders-tests.testnet')
+      expect(receipt.to).to.equal('blockcoders.testnet')
+    }).timeout(15000)
   })
 
   describe('signMessage', () => {
@@ -535,6 +541,18 @@ describe('NearRpcProvider', () => {
         expect(error).to.exist
         expect(error).to.be.instanceof(Error)
       }
+    })
+  })
+
+  describe('send', () => {
+    it('should check on archival node if the error is a HandlerError', async () => {
+      // Old transaction, not on main node
+      // https://explorer.testnet.near.org/transactions/2KSf6ZEWk48C8YyZiKNd1NusSbMq8SAcUYKAfHhDLqX1
+      const txHash = '2KSf6ZEWk48C8YyZiKNd1NusSbMq8SAcUYKAfHhDLqX1'
+      const accountId = 'blockcoders-tests.testnet'
+      const result = await provider.send<GetTransactionStatusRpcResponse>('tx', [txHash, accountId])
+      expect(result.status.SuccessValue).to.exist
+      expect(result.transaction_outcome.block_hash).to.equal('9ZMa7VuTVEokA27Et3W8URCsNfQ1D3zQ1TUhDvAjwtmo')
     })
   })
 

@@ -43,7 +43,7 @@ import {
   GetAccessKeyResponse,
   GetContractCallResponse,
 } from './responses'
-import { errorIsHandlerError } from './utils'
+import { errorIsHandlerError, retry } from './utils'
 
 export class RpcError extends Error {
   public readonly type?: string
@@ -342,8 +342,12 @@ export class NearRpcProvider extends JsonRpcProvider {
   }
 
   private async _internalGetTransactionStatus(txHash: string, accountId: string) {
-    const result = await this.send<GetTransactionStatusRpcResponse>('tx', [txHash, accountId])
-    return result
+    const fn = retry(
+      () => this.send<GetTransactionStatusRpcResponse>('tx', [txHash, accountId]),
+      5,
+      (retry) => 2 ** retry * 1000,
+    )
+    return fn()
   }
 
   private _decodeTransaction(signedTransaction: string): SignedTransaction {

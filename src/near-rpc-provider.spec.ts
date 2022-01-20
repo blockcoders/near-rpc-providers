@@ -154,19 +154,34 @@ describe('NearRpcProvider', () => {
 
   describe('uncachedDetectNetwork', () => {
     it('should get the network', async () => {
-      try {
-        const network = await provider._uncachedDetectNetwork()
-        expect(network).to.exist
-      } catch (error) {
-        expect(error).to.exist
-        expect(error).to.be.an.instanceof(Error)
-      }
+      expect(provider._uncachedDetectNetwork()).to.eventually.to.exist
     })
 
-    it('should throw an error if could not detect a network', async () => {
-      const stub = sinon.stub(NearRpcProvider.prototype, '_uncachedDetectNetwork').callsFake(async () => {
-        throw new Error('could not detect network')
-      })
+    it('should get the network from EXPERIMENTAL_genesis_config', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, 'send').onCall(0).throws()
+
+      expect(provider._uncachedDetectNetwork()).to.eventually.to.exist
+      stub.restore()
+    })
+
+    it('should throw an error if could not get the network from RPC', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, 'send').onCall(0).throws().onCall(1).throws()
+
+      expect(provider._uncachedDetectNetwork()).to.be.rejectedWith(Error)
+      stub.restore()
+    })
+
+    it('should throw an error if chainId is invalid', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, 'send').onCall(0).resolves({ chain_id: 'sarasa' })
+
+      expect(provider._uncachedDetectNetwork()).to.be.rejectedWith(Error)
+      stub.restore()
+    })
+
+    it('should throw an error if chainId is null or undefined', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, 'send').onCall(0).resolves({ chain_id: null })
+
+      expect(provider._uncachedDetectNetwork()).to.be.rejectedWith(Error)
       stub.restore()
     })
   })
@@ -351,7 +366,10 @@ describe('NearRpcProvider', () => {
     })
 
     it('should throw an error if something went wrong with the node', async () => {
+      const stub = sinon.stub(NearRpcProvider.prototype, 'send').onCall(0).throws()
+
       expect(provider.getNetworkInfo()).to.be.rejectedWith(Error)
+      stub.restore()
     })
   })
 
@@ -429,7 +447,7 @@ describe('NearRpcProvider', () => {
       expect(signedTransaction.transaction.signerId).to.equal('blockcoders-tests.testnet')
       expect(signedTransaction.transaction.receiverId).to.equal('blockcoders.testnet')
       expect(signedTransaction.signature).to.be.instanceOf(Signature)
-    }).timeout(5000)
+    })
 
     it('should be able to execute and wait for the signed transaction', async () => {
       const [hash, signedTransaction] = await getSignedTransaction(provider)
@@ -442,7 +460,7 @@ describe('NearRpcProvider', () => {
       expect(receipt.blockHash).to.be.string
       expect(receipt.from).to.equal('blockcoders-tests.testnet')
       expect(receipt.to).to.equal('blockcoders.testnet')
-    }).timeout(15000)
+    })
   })
 
   describe('signMessage', () => {

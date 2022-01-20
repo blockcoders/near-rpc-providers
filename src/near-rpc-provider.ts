@@ -146,7 +146,7 @@ export class NearRpcProvider extends JsonRpcProvider {
       try {
         const network = getNetwork(parseInt(Buffer.from(chainId).toString('hex'), 16))
 
-        if (!network) {
+        if (!network || network.name === 'unknown') {
           throw new Error(`Invalid network chainId ${chainId}`)
         }
 

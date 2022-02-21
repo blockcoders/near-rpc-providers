@@ -7,8 +7,6 @@
 
 Near JSON RPC Provider compatible with [ethers.js](https://github.com/ethers-io/ethers.js/)
 
-Currently under developement 🤓
-
 ## Install
 
 ```sh
